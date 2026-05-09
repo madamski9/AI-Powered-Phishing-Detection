@@ -1,17 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
     Dimensions,
-    TouchableOpacity,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
+import { AntDesign } from '@expo/vector-icons'
 import { Button, useTheme, TextInput as PaperTextInput } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import Input from '../../components/Input'
+import SwipeableRow from '../../components/SwipeableRow'
+import { useAuth } from '../../contexts/AuthContext'
+import { checkUrl } from '../../api/checkUrl'
+
+const SCANS_STORAGE_KEY = '@url_scans'
+const MAX_STORED_SCANS = 25
 
 const { height, width } = Dimensions.get('window')
 
@@ -19,6 +25,7 @@ interface UrlScanResult {
     id: string
     url: string
     isSafe: boolean
+    confidence: number
     timestamp: Date
 }
 
@@ -29,60 +36,95 @@ const truncateUrl = (url: string, maxLength: number = 35): string => {
     return url
 }
 
+// Accepts bare domains, paths and full URLs — rejects spaces and obviously malformed input
+const URL_REGEX = /^(https?:\/\/)?([a-zA-Z0-9À-ɏ]([a-zA-Z0-9À-ɏ\-]{0,61}[a-zA-Z0-9À-ɏ])?\.)+[a-zA-Z]{2,}(:\d{1,5})?(\/[^\s]*)?$/
+
+const validateUrl = (input: string): string | null => {
+    if (/\s/.test(input)) return 'URL nie może zawierać spacji'
+    if (!URL_REGEX.test(input)) return 'Nieprawidłowy format URL'
+    return null
+}
+
 const CheckUrlScreen = () => {
     const { colors } = useTheme()
     const { t } = useTranslation()
+    const { user } = useAuth()
     const [url, setUrl] = useState('')
     const [isScanning, setIsScanning] = useState(false)
+    const [scanResult, setScanResult] = useState<UrlScanResult | null>(null)
+    const [scanError, setScanError] = useState<string | null>(null)
+    const [recentScans, setRecentScans] = useState<UrlScanResult[]>([])
 
-    const [recentScans] = useState<UrlScanResult[]>([
-        {
-            id: '1',
-            url: 'https://www.google.com',
-            isSafe: true,
-            timestamp: new Date(),
-        },
-        {
-            id: '2',
-            url: 'https://suspicious-login-bank-phishing-attempt.com',
-            isSafe: false,
-            timestamp: new Date(Date.now() - 3600000),
-        },
-        {
-            id: '3',
-            url: 'https://github.com',
-            isSafe: true,
-            timestamp: new Date(Date.now() - 7200000),
-        },
-        {
-            id: '4',
-            url: 'https://verify-your-account-urgently-fake-security-warning.net',
-            isSafe: false,
-            timestamp: new Date(Date.now() - 10800000),
-        },
-        {
-            id: '5',
-            url: 'https://stackoverflow.com',
-            isSafe: true,
-            timestamp: new Date(Date.now() - 14400000),
-        },
-    ])
+    useEffect(() => {
+        AsyncStorage.getItem(SCANS_STORAGE_KEY).then(raw => {
+            if (!raw) return
+            try {
+                const parsed: UrlScanResult[] = JSON.parse(raw).map((s: any) => ({
+                    ...s,
+                    timestamp: new Date(s.timestamp),
+                }))
+                setRecentScans(parsed)
+            } catch {
+                // corrupted storage — ignore
+            }
+        })
+    }, [])
 
     const handleScan = async () => {
         if (!url.trim()) {
-            console.warn('URL is empty')
+            console.warn('[CheckUrlScreen] URL is empty')
             return
         }
-        setIsScanning(true)
-        try {
-            // TODO: Call API to scan URL
-            console.log('Scanning URL:', url)
-            await new Promise(resolve => setTimeout(resolve, 2000))
-        } catch (error) {
-            console.error('Error scanning URL:', error)
-        } finally {
-            setIsScanning(false)
+        const validationError = validateUrl(url.trim())
+        if (validationError) {
+            setScanError(validationError)
+            return
         }
+        if (!user?.idToken) {
+            console.warn('[CheckUrlScreen] No idToken - user not authenticated')
+            return
+        }
+
+        console.log('[CheckUrlScreen] Starting scan for:', url.trim())
+        setIsScanning(true)
+        setScanResult(null)
+        setScanError(null)
+
+        const result = await checkUrl(url.trim(), user.idToken)
+
+        if (!result.ok) {
+            console.error('[CheckUrlScreen] Scan failed:', result.error)
+            setScanError(result.error)
+            setIsScanning(false)
+            return
+        }
+
+        console.log('[CheckUrlScreen] Scan complete - is_phishing:', result.data.is_phishing, 'confidence:', result.data.confidence)
+
+        const newScan: UrlScanResult = {
+            id: Date.now().toString(),
+            url: url.trim(),
+            isSafe: !result.data.is_phishing,
+            confidence: result.data.confidence,
+            timestamp: new Date(),
+        }
+
+        setScanResult(newScan)
+        setRecentScans(prev => {
+            const updated = [newScan, ...prev].slice(0, MAX_STORED_SCANS)
+            AsyncStorage.setItem(SCANS_STORAGE_KEY, JSON.stringify(updated))
+            return updated
+        })
+        setUrl('')
+        setIsScanning(false)
+    }
+
+    const deleteScan = (id: string) => {
+        setRecentScans(prev => {
+            const updated = prev.filter(s => s.id !== id)
+            AsyncStorage.setItem(SCANS_STORAGE_KEY, JSON.stringify(updated))
+            return updated
+        })
     }
 
     return (
@@ -103,13 +145,12 @@ const CheckUrlScreen = () => {
                         placeholder={t('urlCheck.inputPlaceholder')}
                         value={url}
                         onChangeText={setUrl}
-                        icon={<PaperTextInput.Icon icon="link" style={{marginRight: 10}}/>}
+                        icon={<PaperTextInput.Icon icon="link" style={{ marginRight: 10 }} />}
                     />
-
                     <Button
                         style={{ backgroundColor: colors.primary, borderRadius: 12 }}
                         onPress={handleScan}
-                        disabled={isScanning}
+                        disabled={isScanning || !url.trim()}
                         contentStyle={{ padding: 10 }}
                     >
                         <Text style={styles.scanButtonText}>
@@ -117,58 +158,86 @@ const CheckUrlScreen = () => {
                         </Text>
                     </Button>
                 </View>
-                <View style={styles.recentScansSection}>
-                    <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>
-                        {t('urlCheck.recentScans')}
-                    </Text>
-                    <View style={styles.scansList}>
-                        {recentScans.map((scan) => (
-                            <View
-                                key={scan.id}
-                                style={[
-                                    styles.scanItem,
-                                    {
-                                        backgroundColor: colors.surface,
-                                        borderColor: 'rgba(0, 0, 0, 0.12)',
-                                    },
-                                ]}
-                            >
-                                <View style={styles.scanItemLeft}>
-                                    {scan.isSafe ? (
-                                        <AntDesign name="check-circle" size={24} color="#4CAF50" />
-                                    ) : (
-                                        <AntDesign name="warning" size={24} color="#C62828" />
-                                    )}
-                                </View>
-                                <View style={styles.scanItemCenter}>
-                                    <Text
-                                        style={[
-                                            styles.scanItemUrl,
-                                            { color: colors.onBackground },
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        {truncateUrl(scan.url)}
-                                    </Text>
-                                </View>
-                                <View style={styles.scanItemRight}>
-                                    <Text
-                                        style={[
-                                            styles.scanItemStatus,
-                                            {
-                                                color: scan.isSafe ? '#4CAF50' : '#C62828',
-                                            },
-                                        ]}
-                                    >
-                                        {scan.isSafe
-                                            ? t('urlCheck.safe')
-                                            : t('urlCheck.warning')}
-                                    </Text>
-                                </View>
-                            </View>
-                        ))}
+
+                {scanError && (
+                    <View style={[styles.resultCard, { backgroundColor: '#FFF3F3', borderColor: '#C62828' }]}>
+                        <AntDesign name="exclamation-circle" size={24} color="#C62828" />
+                        <View style={styles.resultTextWrapper}>
+                            <Text style={[styles.resultLabel, { color: '#C62828' }]}>Błąd skanowania</Text>
+                            <Text style={styles.resultDetail}>{scanError}</Text>
+                        </View>
                     </View>
-                </View>
+                )}
+                {scanResult && (
+                    <View style={[
+                        styles.resultCard,
+                        {
+                            backgroundColor: scanResult.isSafe ? '#F1FFF4' : '#FFF3F3',
+                            borderColor: scanResult.isSafe ? '#4CAF50' : '#C62828',
+                        }
+                    ]}>
+                        {scanResult.isSafe
+                            ? <AntDesign name="check-circle" size={28} color="#4CAF50" />
+                            : <AntDesign name="warning" size={28} color="#C62828" />
+                        }
+                        <View style={styles.resultTextWrapper}>
+                            <Text style={[styles.resultLabel, { color: scanResult.isSafe ? '#4CAF50' : '#C62828' }]}>
+                                {scanResult.isSafe ? t('urlCheck.safe') : t('urlCheck.warning')}
+                            </Text>
+                            <Text style={styles.resultDetail} numberOfLines={1}>
+                                {truncateUrl(scanResult.url)}
+                            </Text>
+                            <Text style={styles.resultConfidence}>
+                                Pewność: {Math.round(scanResult.confidence * 100)}%
+                            </Text>
+                        </View>
+                    </View>
+                )}
+                {recentScans.length > 0 && (
+                    <View style={styles.recentScansSection}>
+                        <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>
+                            {t('urlCheck.recentScans')}
+                        </Text>
+                        <View style={styles.scansList}>
+                            {recentScans.map((scan) => (
+                                <SwipeableRow key={scan.id} onDelete={() => deleteScan(scan.id)}>
+                                <View
+                                    style={[
+                                        styles.scanItem,
+                                        {
+                                            backgroundColor: colors.surface,
+                                            borderColor: 'rgba(0, 0, 0, 0.12)',
+                                        },
+                                    ]}
+                                >
+                                    <View style={styles.scanItemLeft}>
+                                        {scan.isSafe
+                                            ? <AntDesign name="check-circle" size={24} color="#4CAF50" />
+                                            : <AntDesign name="warning" size={24} color="#C62828" />
+                                        }
+                                    </View>
+                                    <View style={styles.scanItemCenter}>
+                                        <Text
+                                            style={[styles.scanItemUrl, { color: colors.onBackground }]}
+                                            numberOfLines={1}
+                                        >
+                                            {truncateUrl(scan.url)}
+                                        </Text>
+                                        <Text style={styles.scanItemConfidence}>
+                                            {Math.round(scan.confidence * 100)}% pewności
+                                        </Text>
+                                    </View>
+                                    <View style={styles.scanItemRight}>
+                                        <Text style={[styles.scanItemStatus, { color: scan.isSafe ? '#4CAF50' : '#C62828' }]}>
+                                            {scan.isSafe ? t('urlCheck.safe') : t('urlCheck.warning')}
+                                        </Text>
+                                    </View>
+                                </View>
+                                </SwipeableRow>
+                            ))}
+                        </View>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     )
@@ -208,33 +277,41 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         elevation: 3,
     },
-    inputHeader: {
-        marginBottom: 16,
-    },
-    iconView: {
-        height: 50,
-        width: 50,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     urlInput: {
         fontSize: 14,
         marginBottom: 16,
-    },
-    scanButton: {
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    scanButtonIcon: {
-        marginRight: 8,
     },
     scanButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: '700',
+    },
+    resultCard: {
+        borderRadius: 12,
+        borderWidth: 1.5,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+    },
+    resultTextWrapper: {
+        flex: 1,
+    },
+    resultLabel: {
+        fontSize: 16,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    resultDetail: {
+        fontSize: 13,
+        color: '#555',
+        marginTop: 2,
+    },
+    resultConfidence: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 2,
     },
     recentScansSection: {
         marginBottom: 20,
@@ -246,7 +323,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         opacity: 0.8,
         marginBottom: 20,
-        marginTop: 10
+        marginTop: 10,
     },
     scansList: {
         gap: 10,
@@ -275,6 +352,11 @@ const styles = StyleSheet.create({
     scanItemUrl: {
         fontSize: 13,
         fontWeight: '500',
+    },
+    scanItemConfidence: {
+        fontSize: 11,
+        color: '#888',
+        marginTop: 2,
     },
     scanItemRight: {
         flexShrink: 0,
