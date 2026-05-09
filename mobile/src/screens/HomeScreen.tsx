@@ -7,10 +7,12 @@ import {
     Platform,
     ScrollView,
     Dimensions,
+    TouchableOpacity,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { AntDesign } from '@expo/vector-icons'
 import { useTheme } from 'react-native-paper'
+import { useNavigation } from '@react-navigation/native'
 import Input from '../components/Input'
 import GoogleLoginButton from '../components/GoogleLoginButton'
 import EmailButton from '../components/EmailLoginButton'
@@ -19,6 +21,7 @@ const { height, width } = Dimensions.get('window')
 const HomeScreen = () => {
     const { colors } = useTheme()
     const { t } = useTranslation()
+    const navigation = useNavigation<any>()
     const [payload, setPayload] = useState({
         "email": "",
         "password": ""
@@ -67,6 +70,11 @@ const HomeScreen = () => {
                                     onChangeText={(text) => setPayload({ ...payload, password: text })}
                                 />
                                 <EmailButton email={ payload.email } password={ payload.password } />
+                                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                                    <Text style={[styles.registerLink, { color: colors.primary }]}>
+                                        {t('auth.noAccountRegister')}
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                         <Text style={[styles.footer, { color: colors.onBackground }]}>
@@ -151,6 +159,13 @@ const styles = StyleSheet.create({
     emailSection: {
         width: '100%',
         gap: 12,
+    },
+    registerLink: {
+        marginTop: 2,
+        fontSize: 11,
+        fontWeight: '600',
+        textAlign: 'center',
+        opacity: 0.9,
     },
     footer: {
         width: width * 0.7,

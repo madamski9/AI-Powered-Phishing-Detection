@@ -19,6 +19,8 @@ const FIREBASE_AUTH_ERROR_CODES: Record<string, string> = {
   "auth/too-many-requests": "Too many attempts. Please try again later.",
   "auth/missing-password": "Password is required.",
   "auth/missing-email": "Email address is required.",
+  "auth/weak-password": "Password is too weak.",
+  "auth/operation-not-allowed": "Email/password sign-in is disabled.",
 };
 
 export function getFirebaseAuthMessage(message?: string): string {

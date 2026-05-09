@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState, type 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { handleGoogleAuth } from "../auth/google/handleGoogleAuth";
 import { handleEmailPasswordAuth } from "../auth/email/handleEmailPasswordAuth";
+import { handleEmailRegister } from "../auth/email/handleEmailRegister";
 import { tryCatch } from "../utils/try-catch";
 import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { loginWithEmail } from "../auth/email/loginWithEmail";
@@ -19,6 +20,7 @@ type AuthContextValue = {
 	loading: boolean;
 	error: string | null;
 	signInWithEmailPassword: (email: string, password: string) => Promise<AuthActionResult>;
+	signUpWithEmailPassword: (email: string, password: string, name?: string) => Promise<AuthActionResult>;
 	signInWithGoogle: () => Promise<AuthActionResult>;
 	logout: () => Promise<void>;
 	clearError: () => void;
@@ -63,6 +65,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const [response, signInError] = await tryCatch(handleEmailPasswordAuth({ email, password }));
 		if (signInError || !response) {
 			return failAuth(normalizeAuthError(signInError));
+		}
+
+		if (!response.ok) {
+			return failAuth(normalizeAuthError(response.error ?? null));
+		}
+
+		try {
+			const loginResult = await loginWithEmail({ idToken: response.idToken ?? null });
+			if (loginResult.error) {
+				return failAuth(normalizeAuthError(loginResult.error));
+			}
+
+			const backendStatus = resolveBackendAuthStatus(loginResult.data);
+			return succeedAuth({ ...response.user, idToken: response.idToken }, backendStatus);
+		} catch (err) {
+			return failAuth(normalizeAuthError(err));
+		}
+	}, [failAuth, succeedAuth]);
+
+	const signUpWithEmailPassword = useCallback(async (email: string, password: string, name?: string) => {
+		setLoading(true);
+		setError(null);
+
+		const [response, signUpError] = await tryCatch(handleEmailRegister({ email, password, name }));
+		if (signUpError || !response) {
+			return failAuth(normalizeAuthError(signUpError));
 		}
 
 		if (!response.ok) {
@@ -140,11 +168,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			loading,
 			error,
 			signInWithEmailPassword,
+			signUpWithEmailPassword,
 			signInWithGoogle,
 			logout,
 			clearError,
 		}),
-		[authStatus, clearError, error, loading, logout, signInWithEmailPassword, signInWithGoogle, user],
+		[authStatus, clearError, error, loading, logout, signInWithEmailPassword, signInWithGoogle, signUpWithEmailPassword, user],
 	);
 
 	return React.createElement(AuthContext.Provider, { value }, children);
