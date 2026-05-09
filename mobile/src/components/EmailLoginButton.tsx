@@ -14,8 +14,9 @@ import { useAuth } from "../contexts/AuthContext";
 const { width, height } = Dimensions.get("window");
 interface EmailProps {
     email: string,
+    password: string
 }
-const EmailButton = ({ email }: EmailProps) => {
+const EmailButton = ({ email, password }: EmailProps) => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
@@ -65,6 +66,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 12,
     borderWidth: 1,
+    marginTop: 5
   },
   text: {
     fontWeight: 600,

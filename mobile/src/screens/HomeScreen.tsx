@@ -47,7 +47,7 @@ const HomeScreen = () => {
                             <GoogleLoginButton />
                             <View style={styles.separatorRow}>
                                 <View style={styles.separatorLine} />
-                                <Text style={[styles.separatorText, { color: colors.onSurface }]}>OR</Text>
+                                <Text style={[styles.separatorText, { color: colors.onSurface }]}>{t('auth.or')}</Text>
                                 <View style={styles.separatorLine} />
                             </View>
                             <View style={styles.emailSection}>
@@ -58,7 +58,15 @@ const HomeScreen = () => {
                                     value={payload.email}
                                     onChangeText={(text) => setPayload({ ...payload, email: text })}
                                 />
-                                <EmailButton email={payload.email} />
+                                <Input
+                                    style={[styles.input, { backgroundColor: "white" }]}
+                                    mode='outlined'
+                                    secure={true}
+                                    placeholder={t('auth.password')}
+                                    value={payload.password}
+                                    onChangeText={(text) => setPayload({ ...payload, password: text })}
+                                />
+                                <EmailButton email={ payload.email } password={ payload.password } />
                             </View>
                         </View>
                         <Text style={[styles.footer, { color: colors.onBackground }]}>
@@ -154,7 +162,7 @@ const styles = StyleSheet.create({
     },
     input: {
         width: width * 0.83,
-        height: 61
+        height: 51
     },
 })
 

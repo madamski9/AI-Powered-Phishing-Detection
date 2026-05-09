@@ -17,7 +17,8 @@ const GoogleButton = () => {
   const handleGoogleAuth = async () => {
     setIsSubmiting(true);
     try {
-      await signInWithGoogle();
+      const response = await signInWithGoogle();
+      console.log("response google login: ", response)
     } catch (error) {
       console.error("Google login error:", error);
     } finally {

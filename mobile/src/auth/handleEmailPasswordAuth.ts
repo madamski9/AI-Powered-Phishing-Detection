@@ -1,5 +1,6 @@
 import { tryCatch } from "../utils/try-catch";
-import type { AuthErrorLike } from "./handleGoogleAuth";
+
+type AuthErrorLike = unknown;
 
 type EmailPasswordPayload = {
   email: string;

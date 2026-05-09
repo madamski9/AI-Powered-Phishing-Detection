@@ -1,8 +1,12 @@
 import React, { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { handleGoogleAuth, type AuthErrorLike } from "../auth/handleGoogleAuth";
+import { handleGoogleAuth } from "../auth/handleGoogleAuth";
 import { handleEmailPasswordAuth } from "../auth/handleEmailPasswordAuth";
 import { tryCatch } from "../utils/try-catch";
+import { loginWithGoogle } from "../auth/loginWithGoogle";
+import { AuthStatus } from "../enum/authStatus";
+import { firebaseAuth } from "../firebase/firebase";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 
 type AuthUser = {
 	id: string;
@@ -15,12 +19,18 @@ type AuthUser = {
 type AuthContextValue = {
 	user: AuthUser | null;
 	isAuthenticated: boolean;
+	authStatus: AuthStatus;
 	loading: boolean;
 	error: string | null;
-	signInWithEmailPassword: (email: string, password: string) => Promise<void>;
-	signInWithGoogle: () => Promise<void>;
+	signInWithEmailPassword: (email: string, password: string) => Promise<AuthActionResult>;
+	signInWithGoogle: () => Promise<AuthActionResult>;
 	logout: () => Promise<void>;
 	clearError: () => void;
+};
+
+type AuthActionResult = {
+	status: AuthStatus;
+	error?: string;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -29,7 +39,7 @@ function nullToUndefined(value: string | null | undefined): string | undefined {
 	return value ?? undefined;
 }
 
-function normalizeError(error: AuthErrorLike): string {
+function normalizeError(error: any): string {
 	if (error instanceof Error && error.message) {
 		return error.message;
 	}
@@ -50,6 +60,7 @@ function normalizeError(error: AuthErrorLike): string {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<AuthUser | null>(null);
+	const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.ERROR);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -65,16 +76,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		if (signInError || !response) {
 			setUser(null);
+			setAuthStatus(AuthStatus.ERROR);
 			setError(normalizeError(signInError));
 			setLoading(false);
-			return;
+			return { status: AuthStatus.ERROR, error: normalizeError(signInError) };
 		}
 
 		if (!response.ok) {
 			setUser(null);
+			setAuthStatus(AuthStatus.ERROR);
 			setError(normalizeError(response.error ?? null));
 			setLoading(false);
-			return;
+			return { status: AuthStatus.ERROR, error: normalizeError(response.error ?? null) };
 		}
 
 		setUser({
@@ -84,40 +97,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			photo: response.user.photo,
 			idToken: response.idToken,
 		});
+		setAuthStatus(AuthStatus.LOGGED_IN);
 		setLoading(false);
+		return { status: AuthStatus.LOGGED_IN };
 	}, []);
 
 	const signInWithGoogle = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 
-		const [response, signInError] = await tryCatch(handleGoogleAuth());
-
-		if (signInError || !response) {
+		const googleResult = await handleGoogleAuth();
+		if (!googleResult.ok) {
 			setUser(null);
-			setError(normalizeError(signInError));
+			setAuthStatus(AuthStatus.ERROR);
+			const message = normalizeError(googleResult.error ?? null);
+			setError(message);
 			setLoading(false);
-			return;
+			return { status: AuthStatus.ERROR, error: message };
 		}
 
-		if (!response.ok) {
-			setUser(null);
-			setError(normalizeError(response.error ?? null));
+		const { idToken, name } = googleResult;
+		if (idToken) {
+			try {
+				const credential = GoogleAuthProvider.credential(idToken);
+				const userCred = await signInWithCredential(firebaseAuth, credential);
+				const firebaseIdToken = await userCred.user.getIdToken();
+				const loginResult = await loginWithGoogle({ idToken: firebaseIdToken, name });
+				console.log("login result: ", loginResult)
+			if (loginResult.error) {
+				setUser(null);
+				setAuthStatus(AuthStatus.ERROR);
+				setError(normalizeError(loginResult.error));
+				setLoading(false);
+				return { status: AuthStatus.ERROR, error: normalizeError(loginResult.error) };
+			}
+
+			const backendStatus =
+				typeof loginResult.data === "object" &&
+				loginResult.data !== null &&
+				"status" in loginResult.data &&
+				typeof (loginResult.data as { status?: unknown }).status === "string"
+					? ((loginResult.data as { status: AuthStatus }).status)
+					: AuthStatus.LOGGED_IN;
+			setAuthStatus(backendStatus);
+			setUser({
+				id: userCred.user.uid,
+				email: userCred.user.email ?? undefined,
+				name: userCred.user.displayName ?? nullToUndefined(name),
+				photo: userCred.user.photoURL ?? undefined,
+				idToken: firebaseIdToken,
+			});
 			setLoading(false);
-			return;
+			return { status: backendStatus };
+		} catch (err) {
+			setError(normalizeError(err));
+			setAuthStatus(AuthStatus.ERROR);
+			setLoading(false);
+			return { status: AuthStatus.ERROR, error: normalizeError(err) };
 		}
 
-		const parsedUser = response.user;
-		const parsedName = nullToUndefined(response.name);
+		}
 
-		setUser({
-			id: parsedUser.id,
-			email: nullToUndefined(parsedUser.email),
-			name: parsedName ?? nullToUndefined(parsedUser.name),
-			photo: nullToUndefined(parsedUser.photo),
-			idToken: nullToUndefined(response.idToken),
-		});
+		setUser(null);
+		setAuthStatus(AuthStatus.ERROR);
 		setLoading(false);
+		return { status: AuthStatus.ERROR, error: "Unknown user status" };
 	}, []);
 
 	const logout = useCallback(async () => {
@@ -140,6 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		() => ({
 			user,
 			isAuthenticated: Boolean(user),
+			authStatus,
 			loading,
 			error,
 			signInWithEmailPassword,
@@ -147,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			logout,
 			clearError,
 		}),
-		[clearError, error, loading, logout, signInWithEmailPassword, signInWithGoogle, user],
+		[authStatus, clearError, error, loading, logout, signInWithEmailPassword, signInWithGoogle, user],
 	);
 
 	return React.createElement(AuthContext.Provider, { value }, children);

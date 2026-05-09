@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Depends
 from datetime import datetime
-from middleware import verify_firebase
+from fastapi import Depends, FastAPI
+import app.firebase.firebase_init
+from app.middleware.verify_firebase import verify_firebase_token
 
 app = FastAPI()
 
@@ -13,8 +14,8 @@ def health():
         "message": "API is running and operational"
     }
 
-@app.get("/protected")
-def protected_route(user=Depends(verify_firebase)):
+@app.post("/auth/google")
+def protected_route(user=Depends(verify_firebase_token)):
     return {
         "uid": user["uid"],
         "email": user.get("email")

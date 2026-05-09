@@ -16,6 +16,7 @@
     "expo": "~54.0.33",
     "expo-dev-client": "~6.0.21",
     "expo-status-bar": "~3.0.9",
+    "firebase": "^12.13.0",
     "i18next": "^26.0.10",
     "react": "19.1.0",
     "react-i18next": "^17.0.7",
