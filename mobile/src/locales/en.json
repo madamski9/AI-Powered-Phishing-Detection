@@ -17,5 +17,27 @@
     "protectYourDigitalPresence": "Protect your digital presence",
     "termsAndPrivacy": "By continuing, you agree to our Terms of Service and Privacy Policy",
     "or": "OR"
+  },
+  "dashboard": {
+    "greeting": "Welcome, {{name}}",
+    "protection": "Your digital world is protected",
+    "scanUrl": "Scan URL link",
+    "scanUrlDesc": "Verify suspicious website addresses for phishing",
+    "scanEmail": "Scan email message",
+    "scanEmailDesc": "Analyze email content and addresses for data theft attempts",
+    "yourStats": "Your statistics",
+    "scanned": "Scanned objects",
+    "threats": "Detected threats",
+    "securityLevel": "Security level",
+    "safe": "Safe"
+  },
+  "urlCheck": {
+    "title": "Scan URL",
+    "subtitle": "Paste a suspicious URL below to instantly check it for phishing threats.",
+    "inputPlaceholder": "Paste URL to check",
+    "scanButton": "Scan now",
+    "recentScans": "Recent scans",
+    "safe": "SAFE",
+    "warning": "WARNING"
   }
 }

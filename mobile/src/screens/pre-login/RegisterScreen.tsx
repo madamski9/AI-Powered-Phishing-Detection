@@ -13,8 +13,9 @@ import { useNavigation } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
 import { useTheme, Button } from 'react-native-paper'
 import { AntDesign } from '@expo/vector-icons'
-import Input from '../components/Input'
-import { useAuth } from '../contexts/AuthContext'
+import Input from '../../components/Input'
+import { useAuth } from '../../contexts/AuthContext'
+import { AuthStatus } from '../../enum/authStatus'
 
 const { width } = Dimensions.get('window')
 
@@ -40,8 +41,8 @@ const RegisterScreen = () => {
         }
 
         const result = await signUpWithEmailPassword(payload.email, payload.password, payload.name || undefined)
-        if (!result.error) {
-            navigation.navigate('Home' as never)
+        if (result.status === AuthStatus.LOGGED_IN) {
+            navigation.replace('Main' as never)
         }
     }
 
@@ -124,7 +125,7 @@ const RegisterScreen = () => {
                                     {t('auth.register')}
                                 </Button>
 
-                                <TouchableOpacity onPress={() => navigation.navigate('Home' as never)}>
+                                <TouchableOpacity onPress={() => navigation.replace('Home' as never)}>
                                     <Text style={[styles.loginLink, { color: colors.primary }]}>
                                         {t('auth.haveAccountLogin')}
                                     </Text>

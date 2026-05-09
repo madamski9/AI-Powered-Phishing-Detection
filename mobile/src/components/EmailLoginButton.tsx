@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme, Text, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../contexts/AuthContext";
+import { AuthStatus } from "../enum/authStatus";
 
 const { width, height } = Dimensions.get("window");
 interface EmailProps {
@@ -21,6 +22,7 @@ const EmailButton = ({ email, password }: EmailProps) => {
   const { t } = useTranslation();
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const { signInWithEmailPassword } = useAuth();
+  const navigation = useNavigation<any>();
 
   const handleEmailAuth = async () => {
     if (!email || !email.includes('@')) {
@@ -34,7 +36,10 @@ const EmailButton = ({ email, password }: EmailProps) => {
     }
     setIsSubmiting(true);
     try {
-      await signInWithEmailPassword(email, password);
+      const response = await signInWithEmailPassword(email, password);
+      if (response.status !== AuthStatus.ERROR) {
+        navigation.replace("Main");
+      }
     } catch (error) {
       console.error("Email login error:", error);
     } finally {

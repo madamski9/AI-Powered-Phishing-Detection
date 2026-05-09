@@ -7,18 +7,22 @@ import { useTheme, Text, Button } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../contexts/AuthContext";
+import { AuthStatus } from "../enum/authStatus";
 
 const GoogleButton = () => {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const { signInWithGoogle } = useAuth();
+  const navigation = useNavigation<any>();
 
   const handleGoogleAuth = async () => {
     setIsSubmiting(true);
     try {
       const response = await signInWithGoogle();
-      console.log("response google login: ", response)
+      if (response.status !== AuthStatus.ERROR) {
+        navigation.replace("Main");
+      }
     } catch (error) {
       console.error("Google login error:", error);
     } finally {
