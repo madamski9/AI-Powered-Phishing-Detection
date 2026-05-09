@@ -15,6 +15,7 @@ interface TextInputProps {
   onFocus?: () => void;
   onBlur?: () => void;
   keyboardType?: KeyboardTypeOptions;
+  icon?: React.ReactElement
 }
 
 const { width, height } = Dimensions.get("window");
@@ -31,6 +32,7 @@ const Input = ({
   onFocus,
   onBlur,
   keyboardType,
+  icon
 }: TextInputProps) => {
   return (
     <TextInput
@@ -46,6 +48,7 @@ const Input = ({
       theme={{ roundness: 12 }}
       onFocus={onFocus}
       onBlur={onBlur}
+      left={icon}
     />
   );
 };

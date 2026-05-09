@@ -6,15 +6,14 @@ import {
     ScrollView,
     Dimensions,
     TouchableOpacity,
-    TextInput,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
-import { MaterialCommunityIcons, AntDesign, EvilIcons } from '@expo/vector-icons'
-import { Button, useTheme } from 'react-native-paper'
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
+import { Button, useTheme, TextInput as PaperTextInput } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Input from '../../components/Input'
 
-const { width } = Dimensions.get('window')
+const { height, width } = Dimensions.get('window')
 
 interface UrlScanResult {
     id: string
@@ -74,7 +73,6 @@ const CheckUrlScreen = () => {
             console.warn('URL is empty')
             return
         }
-
         setIsScanning(true)
         try {
             // TODO: Call API to scan URL
@@ -99,24 +97,20 @@ const CheckUrlScreen = () => {
                     </Text>
                 </View>
                 <View style={[styles.inputCard, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}>
-                    <View style={styles.inputHeader}>
-                        <View style={[styles.iconView, { backgroundColor: colors.primary }]}>
-                            <MaterialCommunityIcons name="link" size={28} color="white" />
-                        </View>
-                    </View>
                     <Input
                         mode='outlined'
                         style={[styles.urlInput, { color: colors.onBackground }]}
                         placeholder={t('urlCheck.inputPlaceholder')}
                         value={url}
                         onChangeText={setUrl}
+                        icon={<PaperTextInput.Icon icon="link" style={{marginRight: 10}}/>}
                     />
 
                     <Button
-                        style={[styles.scanButton, { backgroundColor: colors.primary }]}
+                        style={{ backgroundColor: colors.primary, borderRadius: 12 }}
                         onPress={handleScan}
                         disabled={isScanning}
-                        icon="search"
+                        contentStyle={{ padding: 10 }}
                     >
                         <Text style={styles.scanButtonText}>
                             {isScanning ? 'Skanowanie...' : t('urlCheck.scanButton')}
@@ -230,8 +224,6 @@ const styles = StyleSheet.create({
     },
     scanButton: {
         borderRadius: 10,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
