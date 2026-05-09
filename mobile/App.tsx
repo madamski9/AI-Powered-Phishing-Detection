@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from './src/contexts/AuthContext';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import HomeScreen from './src/screens/HomeScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { ThemeProvider } from "./src/contexts/ThemeContext";
 
+const Stack = createNativeStackNavigator();
 export default function App() {
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+    });
+  }, []);
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName='Home'
+              screenOptions={{ headerShown: false }}
+            >
+              <Stack.Screen name="Home" component={HomeScreen}/>
+            </Stack.Navigator>
+          </NavigationContainer>
+        </AuthProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
