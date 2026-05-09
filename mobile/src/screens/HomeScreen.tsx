@@ -70,7 +70,7 @@ const HomeScreen = () => {
                                     onChangeText={(text) => setPayload({ ...payload, password: text })}
                                 />
                                 <EmailButton email={ payload.email } password={ payload.password } />
-                                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                                <TouchableOpacity onPress={() => navigation.replace('Register')}>
                                     <Text style={[styles.registerLink, { color: colors.primary }]}>
                                         {t('auth.noAccountRegister')}
                                     </Text>

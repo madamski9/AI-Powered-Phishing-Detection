@@ -8,7 +8,7 @@ import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { loginWithEmail } from "../auth/email/loginWithEmail";
 import { AuthStatus } from "../enum/authStatus";
 import { firebaseAuth } from "../firebase/firebase";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { GoogleAuthProvider, signInWithCredential, signOut } from "firebase/auth";
 import { normalizeAuthError } from "../auth/firebaseAuthErrors";
 import { buildAuthUser, resolveBackendAuthStatus } from "../auth/authFlow";
 import type { AuthUser } from "../auth/authFlow";
@@ -148,15 +148,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setLoading(true);
 		setError(null);
 
-		const [, logoutError] = await tryCatch(GoogleSignin.signOut());
+		const [, signOutError] = await tryCatch(signOut(firebaseAuth));
 
-		if (logoutError) {
-			setError(normalizeAuthError(logoutError));
+		if (signOutError) {
+			setError(normalizeAuthError(signOutError));
 			setLoading(false);
 			return;
 		}
 
+		const [, googleSignOutError] = await tryCatch(GoogleSignin.signOut());
+
+		if (googleSignOutError) {
+			console.warn("Google sign out error:", googleSignOutError);
+		}
+
 		setUser(null);
+		setAuthStatus(AuthStatus.ERROR);
 		setLoading(false);
 	}, []);
 

@@ -17,5 +17,18 @@
     "protectYourDigitalPresence": "Chroń swoją cyfrową obecność",
     "termsAndPrivacy": "Kontynuując, zgadzasz się na nasze Warunki Usługi i Politykę Prywatności",
     "or": "ALBO"
+  },
+  "dashboard": {
+    "greeting": "Witaj, {name}",
+    "protection": "Twój cyfrowy świat jest pod ochroną",
+    "scanUrl": "Skanuj link URL",
+    "scanUrlDesc": "Weryfikacja podejrzanych adresów stron pod kątem phishingu",
+    "scanEmail": "Skanuj wiadomość e-mail",
+    "scanEmailDesc": "Analiza treści wiadomości i adresów email w poszukiwaniu prób wyłudzenia danych",
+    "yourStats": "Twoje statystyki",
+    "scanned": "Przeskanowane obiekty",
+    "threats": "Wykryte zagrożenia",
+    "securityLevel": "Poziom bezpieczeństwa",
+    "safe": "Bezpieczne"
   }
 }
