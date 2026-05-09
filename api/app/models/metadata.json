@@ -1,15 +1,14 @@
 {
   "model_name": "phishing_detector",
   "version": "1.0",
-  "threshold_strategy": "f1",
-  "optimal_threshold": 0.45,
+  "optimal_threshold": 0.6984,
   "metrics": {
-    "accuracy": 0.895367252207154,
-    "precision": 0.7701274946080974,
-    "recall": 0.9016781205050344,
-    "f1": 0.8307270960332185,
-    "roc_auc": 0.9671187261169062,
-    "optimal_threshold": 0.45,
-    "threshold_mode": "security"
+    "accuracy": 0.9533,
+    "precision": 0.8985,
+    "recall": 0.8752,
+    "f1": 0.8867,
+    "roc_auc": 0.9860,
+    "optimal_threshold": 0.6984,
+    "threshold_mode": "f1"
   }
 }

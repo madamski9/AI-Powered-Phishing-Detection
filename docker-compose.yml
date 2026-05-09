@@ -9,13 +9,38 @@ services:
     environment:
       - ENVIRONMENT=production
       - LOG_LEVEL=info
+      - ML_SERVICE_URL=http://ml-service:8000
     volumes:
       - ./api:/app
     restart: unless-stopped
     networks:
       - detector-network
+    depends_on:
+      ml-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: detector-ml
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    volumes:
+      - ./ml-service:/app
+    restart: unless-stopped
+    networks:
+      - detector-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,4 +1,4 @@
-FROM python:3.14-slim as builder
+FROM python:3.11-slim as builder
 
 WORKDIR /app
 
@@ -8,16 +8,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt* ./
 
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi \
-    && pip install --no-cache-dir fastapi uvicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.14-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
 RUN useradd -m -u 1000 appuser
 
-COPY --from=builder /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY . .
