@@ -1,0 +1,21 @@
+{
+  "auth": {
+    "signInWithGoogle": "Sign in with Google",
+    "signingInWithGoogle": "Signing in with Google...",
+    "emailAddress": "Email address",
+    "password": "Password",
+    "continueWithEmail": "Continue with Email",
+    "continuingWithEmail": "Continuing with Email...",
+    "noAccountRegister": "Don't have an account yet? Register.",
+    "registerTitle": "Create account",
+    "registerSubtitle": "Register to use phishing protection.",
+    "name": "Name",
+    "confirmPassword": "Confirm password",
+    "register": "Register",
+    "haveAccountLogin": "Already have an account? Sign in.",
+    "phishingDetector": "Phishing Detector",
+    "protectYourDigitalPresence": "Protect your digital presence",
+    "termsAndPrivacy": "By continuing, you agree to our Terms of Service and Privacy Policy",
+    "or": "OR"
+  }
+}

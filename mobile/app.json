@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.madamski9.mobile"
+      "bundleIdentifier": "com.phishingAppMadamski.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.madamski9.mobile"
+      "package": "com.phishingAppMadamski.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"

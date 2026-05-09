@@ -18,7 +18,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}Seargin Mobile App - Setup${NC}"
+echo -e "${BLUE}Detector Mobile App - Setup${NC}"
 echo -e "${BLUE}========================================${NC}"
 
 # Check if Node.js is installed
