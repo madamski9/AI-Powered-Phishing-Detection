@@ -43,7 +43,7 @@ const Input = ({
       secureTextEntry={secure}
       keyboardType={keyboardType}
       style={[styles.input, multiline && styles.textarea, style]}
-      theme={{ roundness: 20 }}
+      theme={{ roundness: 12 }}
       onFocus={onFocus}
       onBlur={onBlur}
     />
@@ -56,9 +56,6 @@ const styles = StyleSheet.create({
   input: {
     alignSelf: "center",
     width: width * 0.8,
-    borderRadius: 12,
-    marginTop: 10,
-    top: height * 0.06,
   },
   textarea: {
     minHeight: 140,

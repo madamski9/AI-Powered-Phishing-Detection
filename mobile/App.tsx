@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from './src/screens/HomeScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { ThemeProvider } from "./src/contexts/ThemeContext";
+import './src/locales/i18n';
 
 const Stack = createNativeStackNavigator();
 export default function App() {

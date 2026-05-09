@@ -1,0 +1,12 @@
+{
+  "auth": {
+    "signInWithGoogle": "Sign in with Google",
+    "signingInWithGoogle": "Signing in with Google...",
+    "emailAddress": "Email address",
+    "continueWithEmail": "Continue with Email",
+    "continuingWithEmail": "Continuing with Email...",
+    "phishingDetector": "Phishing Detector",
+    "protectYourDigitalPresence": "Protect your digital presence",
+    "termsAndPrivacy": "By continuing, you agree to our Terms of Service and Privacy Policy"
+  }
+}

@@ -9,6 +9,33 @@ import { themeDark, themeLight } from "../constans/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { tryCatch } from "../utils/try-catch";
 
+const themePreferenceFallback = new Map<string, string>();
+let asyncStorageUnavailable = false;
+
+async function readThemePreference(key: string): Promise<string | null> {
+  if (!asyncStorageUnavailable) {
+    const [value, error] = await tryCatch(AsyncStorage.getItem(key));
+    if (!error) {
+      return value;
+    }
+    asyncStorageUnavailable = true;
+  }
+
+  return themePreferenceFallback.has(key) ? themePreferenceFallback.get(key)! : null;
+}
+
+async function writeThemePreference(key: string, value: string): Promise<void> {
+  if (!asyncStorageUnavailable) {
+    const [, error] = await tryCatch(AsyncStorage.setItem(key, value));
+    if (!error) {
+      return;
+    }
+    asyncStorageUnavailable = true;
+  }
+
+  themePreferenceFallback.set(key, value);
+}
+
 type ThemeContextType = {
   theme: typeof DefaultTheme;
   toggleTheme: () => void;
@@ -29,11 +56,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }): Reac
 
   useEffect(() => {
     (async () => {
-      const [userTheme, error] = await tryCatch(
-        AsyncStorage.getItem("isDarkMode"),
-      );
+      const userTheme = await readThemePreference("isDarkMode");
       if (userTheme !== null) setIsDarkMode(JSON.parse(userTheme));
-      if (error) console.error("error during saving theme: ", error);
       setIsLoading(false);
     })();
   }, [theme]);
@@ -41,10 +65,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }): Reac
   const toggleTheme = async () => {
     const newThemeState = !isDarkMode;
     setIsDarkMode(newThemeState);
-    const [, error] = await tryCatch(
-      AsyncStorage.setItem("isDarkMode", JSON.stringify(newThemeState)),
-    );
-    if (error) console.error("error during toggling theme: ", error);
+    await writeThemePreference("isDarkMode", JSON.stringify(newThemeState));
   };
   if (isLoading) return null;
   return React.createElement(
