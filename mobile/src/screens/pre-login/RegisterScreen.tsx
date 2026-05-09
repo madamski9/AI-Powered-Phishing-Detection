@@ -13,9 +13,9 @@ import { useNavigation } from '@react-navigation/native'
 import { useTranslation } from 'react-i18next'
 import { useTheme, Button } from 'react-native-paper'
 import { AntDesign } from '@expo/vector-icons'
-import Input from '../components/Input'
-import { useAuth } from '../contexts/AuthContext'
-import { AuthStatus } from '../enum/authStatus'
+import Input from '../../components/Input'
+import { useAuth } from '../../contexts/AuthContext'
+import { AuthStatus } from '../../enum/authStatus'
 
 const { width } = Dimensions.get('window')
 

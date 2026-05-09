@@ -10,7 +10,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
 import { useTheme } from 'react-native-paper'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
+import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const { height, width } = Dimensions.get('window')
@@ -18,17 +19,30 @@ const { height, width } = Dimensions.get('window')
 const MainScreen = () => {
     const { colors } = useTheme()
     const { t } = useTranslation()
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
+    const navigation = useNavigation<any>()
     const stats = {
         scanned: 342,
         threats: 18,
         safePercentage: 95,
+    }
+    const handleLogout = async () => {
+        await logout()
+        navigation.replace('Home')
     }
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.greetingSection}>
+                    <TouchableOpacity
+                        style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}
+                        onPress={handleLogout}
+                        activeOpacity={0.7}
+                    >
+                        <MaterialCommunityIcons name="logout" size={18} color={colors.onBackground} />
+                        <Text style={[styles.logoutText, { color: colors.onBackground }]}>Wyloguj</Text>
+                    </TouchableOpacity>
                     <Text style={[styles.greetingTitle, { color: colors.onBackground }]}>
                         {t('dashboard.greeting', { name: user?.name || 'User' })}
                     </Text>
@@ -39,6 +53,7 @@ const MainScreen = () => {
                 <View style={styles.cardsContainer}>
                     <TouchableOpacity
                         style={[styles.scanCard, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}
+                        onPress={() => navigation.navigate('CheckUrl')}
                         activeOpacity={0.7}
                     >
                         <View style={styles.cardHeader}>
@@ -143,6 +158,23 @@ const styles = StyleSheet.create({
     greetingSection: {
         marginBottom: 8,
         paddingTop: 8,
+    },
+    logoutButton: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        zIndex: 10,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    logoutText: {
+        fontSize: 12,
+        fontWeight: '700',
     },
     greetingTitle: {
         fontSize: 28,

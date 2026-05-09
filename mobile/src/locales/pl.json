@@ -19,7 +19,7 @@
     "or": "ALBO"
   },
   "dashboard": {
-    "greeting": "Witaj, {name}",
+    "greeting": "Witaj, {{name}}",
     "protection": "Twój cyfrowy świat jest pod ochroną",
     "scanUrl": "Skanuj link URL",
     "scanUrlDesc": "Weryfikacja podejrzanych adresów stron pod kątem phishingu",
@@ -30,5 +30,14 @@
     "threats": "Wykryte zagrożenia",
     "securityLevel": "Poziom bezpieczeństwa",
     "safe": "Bezpieczne"
+  },
+  "urlCheck": {
+    "title": "Skanuj link",
+    "subtitle": "Wklej podejrzany adres URL poniżej, aby natychmiast sprawdzić go pod kątem zagrożeń phishingowych.",
+    "inputPlaceholder": "Wklej link do sprawdzenia",
+    "scanButton": "Skanuj teraz",
+    "recentScans": "Ostatnie skany",
+    "safe": "SAFE",
+    "warning": "WARNING"
   }
 }

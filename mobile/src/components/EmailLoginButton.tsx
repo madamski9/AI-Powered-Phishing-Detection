@@ -37,7 +37,7 @@ const EmailButton = ({ email, password }: EmailProps) => {
     setIsSubmiting(true);
     try {
       const response = await signInWithEmailPassword(email, password);
-      if (response.status === AuthStatus.LOGGED_IN) {
+      if (response.status !== AuthStatus.ERROR) {
         navigation.replace("Main");
       }
     } catch (error) {

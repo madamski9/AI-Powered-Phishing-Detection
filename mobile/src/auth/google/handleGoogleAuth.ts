@@ -11,6 +11,6 @@ export async function handleGoogleAuth() {
         return { ok: false, error: "Google sign-in failed." };
     }
     const { idToken, user } = response.data;
-    const { name } = user;
-    return { ok: true, idToken, user, name };
+    const { name, givenName } = user;
+    return { ok: true, idToken, user, name, givenName };
 }

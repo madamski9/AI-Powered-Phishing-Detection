@@ -13,9 +13,9 @@ import { useTranslation } from 'react-i18next'
 import { AntDesign } from '@expo/vector-icons'
 import { useTheme } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
-import Input from '../components/Input'
-import GoogleLoginButton from '../components/GoogleLoginButton'
-import EmailButton from '../components/EmailLoginButton'
+import Input from '../../components/Input'
+import GoogleLoginButton from '../../components/GoogleLoginButton'
+import EmailButton from '../../components/EmailLoginButton'
 
 const { height, width } = Dimensions.get('window')
 const HomeScreen = () => {

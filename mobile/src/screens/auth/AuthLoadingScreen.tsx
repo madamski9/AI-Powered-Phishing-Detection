@@ -9,6 +9,7 @@ const AuthLoadingScreen = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const hasNavigated = useRef(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
@@ -16,6 +17,8 @@ const AuthLoadingScreen = () => {
 
       if (user) {
         try {
+          const token = await user.getIdToken();
+          console.log("User logged in:", user.email, "Token:", token.substring(0, 20) + "...");
           hasNavigated.current = true;
           navigation.replace("Main");
         } catch (error) {
@@ -24,9 +27,11 @@ const AuthLoadingScreen = () => {
           navigation.replace("Home");
         }
       } else {
+        console.log("No user logged in");
         hasNavigated.current = true;
         navigation.replace("Home");
       }
+      setIsChecking(false);
     });
 
     return unsubscribe;

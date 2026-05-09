@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { handleGoogleAuth } from "../auth/google/handleGoogleAuth";
 import { handleEmailPasswordAuth } from "../auth/email/handleEmailPasswordAuth";
@@ -8,7 +8,7 @@ import { loginWithGoogle } from "../auth/google/loginWithGoogle";
 import { loginWithEmail } from "../auth/email/loginWithEmail";
 import { AuthStatus } from "../enum/authStatus";
 import { firebaseAuth } from "../firebase/firebase";
-import { GoogleAuthProvider, signInWithCredential, signOut } from "firebase/auth";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signOut } from "firebase/auth";
 import { normalizeAuthError } from "../auth/firebaseAuthErrors";
 import { buildAuthUser, resolveBackendAuthStatus } from "../auth/authFlow";
 import type { AuthUser } from "../auth/authFlow";
@@ -36,8 +36,32 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<AuthUser | null>(null);
 	const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.ERROR);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+			if (!firebaseUser) {
+				setUser(null);
+				setLoading(false);
+				return;
+			}
+
+			try {
+				const firebaseIdToken = await firebaseUser.getIdToken();
+				const firstName = firebaseUser.displayName?.trim().split(" ")[0];
+
+				setUser(buildAuthUser(firebaseUser, firebaseIdToken, firstName));
+				setAuthStatus(AuthStatus.LOGGED_IN);
+			} catch {
+				setUser(null);
+			}
+
+			setLoading(false);
+		});
+
+		return unsubscribe;
+	}, []);
 
 	const clearError = useCallback(() => {
 		setError(null);
@@ -119,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			return failAuth(normalizeAuthError(googleResult.error ?? null));
 		}
 
-		const { idToken, name } = googleResult;
+		const { idToken, name, givenName } = googleResult;
 		if (idToken) {
 			try {
 				const credential = GoogleAuthProvider.credential(idToken);
@@ -133,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				const backendStatus = resolveBackendAuthStatus(loginResult.data);
 
 				return succeedAuth(
-					buildAuthUser(userCred.user, firebaseIdToken, name),
+					buildAuthUser(userCred.user, firebaseIdToken, givenName ?? name),
 					backendStatus,
 				);
 			} catch (err) {

@@ -20,7 +20,7 @@ const GoogleButton = () => {
     setIsSubmiting(true);
     try {
       const response = await signInWithGoogle();
-      if (response.status === AuthStatus.LOGGED_IN) {
+      if (response.status !== AuthStatus.ERROR) {
         navigation.replace("Main");
       }
     } catch (error) {
