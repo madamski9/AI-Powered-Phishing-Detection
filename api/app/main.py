@@ -9,13 +9,21 @@ app = FastAPI()
 def health():
     return {
         "status": "healthy",
-        "service": "seargin-api",
+        "service": "detector-api",
         "timestamp": datetime.now().isoformat(),
         "message": "API is running and operational"
     }
 
 @app.post("/auth/google")
 def protected_route(user=Depends(verify_firebase_token)):
+    return {
+        "uid": user["uid"],
+        "email": user.get("email")
+    }
+
+
+@app.post("/auth/email")
+def protected_email_route(user=Depends(verify_firebase_token)):
     return {
         "uid": user["uid"],
         "email": user.get("email")

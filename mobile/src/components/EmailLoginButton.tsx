@@ -27,9 +27,14 @@ const EmailButton = ({ email, password }: EmailProps) => {
       console.warn('Invalid email');
       return;
     }
+
+    if (!password) {
+      console.warn('Missing password');
+      return;
+    }
     setIsSubmiting(true);
     try {
-      await signInWithEmailPassword(email, '');
+      await signInWithEmailPassword(email, password);
     } catch (error) {
       console.error("Email login error:", error);
     } finally {

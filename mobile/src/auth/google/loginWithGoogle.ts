@@ -1,16 +1,11 @@
-import { tryCatch } from "../utils/try-catch";
+import { tryCatch } from "../../utils/try-catch";
 interface LoginProps {
   idToken: string | null;
   name: string | null;
 }
 export async function loginWithGoogle({ idToken, name }: LoginProps) {
-    const url = process.env.EXPO_PUBLIC_API_GOOGLE_AUTH_URL;
-    if (!url) {
-        return { ok: false, error: "Missing EXPO_PUBLIC_API_GOOGLE_AUTH_URL" };
-    }
-
     const [responseLogin, backendError] = await tryCatch(
-        fetch(url, {
+        fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/google`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -1,20 +1,16 @@
 import React, { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { handleGoogleAuth } from "../auth/handleGoogleAuth";
-import { handleEmailPasswordAuth } from "../auth/handleEmailPasswordAuth";
+import { handleGoogleAuth } from "../auth/google/handleGoogleAuth";
+import { handleEmailPasswordAuth } from "../auth/email/handleEmailPasswordAuth";
 import { tryCatch } from "../utils/try-catch";
-import { loginWithGoogle } from "../auth/loginWithGoogle";
+import { loginWithGoogle } from "../auth/google/loginWithGoogle";
+import { loginWithEmail } from "../auth/email/loginWithEmail";
 import { AuthStatus } from "../enum/authStatus";
 import { firebaseAuth } from "../firebase/firebase";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-
-type AuthUser = {
-	id: string;
-	email?: string;
-	name?: string;
-	photo?: string;
-	idToken?: string;
-};
+import { normalizeAuthError } from "../auth/firebaseAuthErrors";
+import { buildAuthUser, resolveBackendAuthStatus } from "../auth/authFlow";
+import type { AuthUser } from "../auth/authFlow";
 
 type AuthContextValue = {
 	user: AuthUser | null;
@@ -35,29 +31,6 @@ type AuthActionResult = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function nullToUndefined(value: string | null | undefined): string | undefined {
-	return value ?? undefined;
-}
-
-function normalizeError(error: any): string {
-	if (error instanceof Error && error.message) {
-		return error.message;
-	}
-
-	if (typeof error === "object" && error !== null && "message" in error) {
-		const message = error.message;
-		if (typeof message === "string" && message.length > 0) {
-			return message;
-		}
-	}
-
-	if (typeof error === "string" && error.length > 0) {
-		return error;
-	}
-
-	return "An authentication error occurred.";
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<AuthUser | null>(null);
 	const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.ERROR);
@@ -68,39 +41,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setError(null);
 	}, []);
 
+	const failAuth = useCallback((message: string) => {
+		setUser(null);
+		setAuthStatus(AuthStatus.ERROR);
+		setError(message);
+		setLoading(false);
+		return { status: AuthStatus.ERROR, error: message };
+	}, []);
+
+	const succeedAuth = useCallback((nextUser: AuthUser, status: AuthStatus) => {
+		setUser(nextUser);
+		setAuthStatus(status);
+		setLoading(false);
+		return { status };
+	}, []);
+
 	const signInWithEmailPassword = useCallback(async (email: string, password: string) => {
 		setLoading(true);
 		setError(null);
 
 		const [response, signInError] = await tryCatch(handleEmailPasswordAuth({ email, password }));
-
 		if (signInError || !response) {
-			setUser(null);
-			setAuthStatus(AuthStatus.ERROR);
-			setError(normalizeError(signInError));
-			setLoading(false);
-			return { status: AuthStatus.ERROR, error: normalizeError(signInError) };
+			return failAuth(normalizeAuthError(signInError));
 		}
 
 		if (!response.ok) {
-			setUser(null);
-			setAuthStatus(AuthStatus.ERROR);
-			setError(normalizeError(response.error ?? null));
-			setLoading(false);
-			return { status: AuthStatus.ERROR, error: normalizeError(response.error ?? null) };
+			return failAuth(normalizeAuthError(response.error ?? null));
 		}
 
-		setUser({
-			id: response.user.id,
-			email: response.user.email,
-			name: response.user.name,
-			photo: response.user.photo,
-			idToken: response.idToken,
-		});
-		setAuthStatus(AuthStatus.LOGGED_IN);
-		setLoading(false);
-		return { status: AuthStatus.LOGGED_IN };
-	}, []);
+		try {
+			const loginResult = await loginWithEmail({ idToken: response.idToken ?? null });
+			if (loginResult.error) {
+				return failAuth(normalizeAuthError(loginResult.error));
+			}
+
+			const backendStatus = resolveBackendAuthStatus(loginResult.data);
+			return succeedAuth({ ...response.user, idToken: response.idToken }, backendStatus);
+		} catch (err) {
+			return failAuth(normalizeAuthError(err));
+		}
+	}, [failAuth, succeedAuth]);
 
 	const signInWithGoogle = useCallback(async () => {
 		setLoading(true);
@@ -108,12 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 		const googleResult = await handleGoogleAuth();
 		if (!googleResult.ok) {
-			setUser(null);
-			setAuthStatus(AuthStatus.ERROR);
-			const message = normalizeError(googleResult.error ?? null);
-			setError(message);
-			setLoading(false);
-			return { status: AuthStatus.ERROR, error: message };
+			return failAuth(normalizeAuthError(googleResult.error ?? null));
 		}
 
 		const { idToken, name } = googleResult;
@@ -123,46 +98,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				const userCred = await signInWithCredential(firebaseAuth, credential);
 				const firebaseIdToken = await userCred.user.getIdToken();
 				const loginResult = await loginWithGoogle({ idToken: firebaseIdToken, name });
-				console.log("login result: ", loginResult)
-			if (loginResult.error) {
-				setUser(null);
-				setAuthStatus(AuthStatus.ERROR);
-				setError(normalizeError(loginResult.error));
-				setLoading(false);
-				return { status: AuthStatus.ERROR, error: normalizeError(loginResult.error) };
+				if (loginResult.error) {
+					return failAuth(normalizeAuthError(loginResult.error));
+				}
+
+				const backendStatus = resolveBackendAuthStatus(loginResult.data);
+
+				return succeedAuth(
+					buildAuthUser(userCred.user, firebaseIdToken, name),
+					backendStatus,
+				);
+			} catch (err) {
+				return failAuth(normalizeAuthError(err));
 			}
-
-			const backendStatus =
-				typeof loginResult.data === "object" &&
-				loginResult.data !== null &&
-				"status" in loginResult.data &&
-				typeof (loginResult.data as { status?: unknown }).status === "string"
-					? ((loginResult.data as { status: AuthStatus }).status)
-					: AuthStatus.LOGGED_IN;
-			setAuthStatus(backendStatus);
-			setUser({
-				id: userCred.user.uid,
-				email: userCred.user.email ?? undefined,
-				name: userCred.user.displayName ?? nullToUndefined(name),
-				photo: userCred.user.photoURL ?? undefined,
-				idToken: firebaseIdToken,
-			});
-			setLoading(false);
-			return { status: backendStatus };
-		} catch (err) {
-			setError(normalizeError(err));
-			setAuthStatus(AuthStatus.ERROR);
-			setLoading(false);
-			return { status: AuthStatus.ERROR, error: normalizeError(err) };
 		}
 
-		}
-
-		setUser(null);
-		setAuthStatus(AuthStatus.ERROR);
-		setLoading(false);
-		return { status: AuthStatus.ERROR, error: "Unknown user status" };
-	}, []);
+		return failAuth("Unknown user status");
+	}, [failAuth, succeedAuth]);
 
 	const logout = useCallback(async () => {
 		setLoading(true);
@@ -171,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const [, logoutError] = await tryCatch(GoogleSignin.signOut());
 
 		if (logoutError) {
-			setError(normalizeError(logoutError));
+			setError(normalizeAuthError(logoutError));
 			setLoading(false);
 			return;
 		}

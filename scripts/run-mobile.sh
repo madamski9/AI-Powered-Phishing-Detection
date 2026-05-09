@@ -67,7 +67,7 @@ fi
 # Navigate to mobile directory
 cd "$MOBILE_DIR"
 
-print_header "Seargin Mobile - $PLATFORM"
+print_header "Detector Mobile - $PLATFORM"
 
 case "$PLATFORM" in
     ios)

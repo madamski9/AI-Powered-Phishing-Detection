@@ -1,5 +1,5 @@
 import { GoogleSignin, isSuccessResponse } from "@react-native-google-signin/google-signin";
-import { tryCatch } from "../utils/try-catch";
+import { tryCatch } from "../../utils/try-catch";
 
 export async function handleGoogleAuth() {
     await GoogleSignin.hasPlayServices()
