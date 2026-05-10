@@ -20,6 +20,10 @@ export interface GmailMessage {
 
 export async function getGmailAccessToken(): Promise<string | null> {
     try {
+        // After app restart GoogleSignin loses its in-memory session.
+        // signInSilently() restores it from the OS account manager before getTokens().
+        await GoogleSignin.signInSilently()
+
         const stale = await GoogleSignin.getTokens()
         const staleToken = (stale as any).accessToken
         console.log('[gmail] stale accessToken present:', !!staleToken)

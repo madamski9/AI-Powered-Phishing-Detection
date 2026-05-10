@@ -51,7 +51,7 @@ function getInitials(name: string): string {
 const CheckMailScreen = () => {
     const { colors } = useTheme()
     const { t } = useTranslation()
-    const { user, logout } = useAuth()
+    const { user, loading: authLoading, logout } = useAuth()
     const navigation = useNavigation<any>()
     const { recordScan } = useStats()
 
@@ -95,12 +95,13 @@ const CheckMailScreen = () => {
     }, [t])
 
     useEffect(() => {
+        if (authLoading) return
         const firebaseUser = firebaseAuth.currentUser
         const google = firebaseUser?.providerData.some(p => p.providerId === 'google.com') ?? false
         console.log('[CheckMailScreen] isGoogleUser:', google)
         setIsGoogleUser(google)
         if (google) loadEmails()
-    }, [loadEmails])
+    }, [authLoading, loadEmails])
 
     const handleSearch = () => {
         console.log('[CheckMailScreen] Search:', searchQuery.trim())

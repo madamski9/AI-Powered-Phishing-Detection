@@ -30,8 +30,8 @@ const MainScreen = () => {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <Menu />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <Menu />
                 <View style={styles.greetingSection}>
                     <Text style={[styles.greetingTitle, { color: colors.onBackground }]}>
                         {t('dashboard.greeting', { name: user?.name || 'User' })}
