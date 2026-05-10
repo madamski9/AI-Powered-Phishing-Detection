@@ -236,7 +236,7 @@ export default Menu;
 const styles = StyleSheet.create({
   menu: {
     position: "absolute",
-    top: height * 0.10,
+    top: height * 0.03,
     right: 15,
     padding: 10
   },
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   menuContent: {
     flex: 1,
-    paddingTop: 110,
+    paddingTop: 70,
     paddingHorizontal: 20,
   },
   menuTitle: {
