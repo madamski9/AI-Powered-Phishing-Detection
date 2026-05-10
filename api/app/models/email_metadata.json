@@ -1,0 +1,13 @@
+{
+  "model_name": "email_phishing_detector",
+  "version": "1.0",
+  "optimal_threshold": 0.4562220573425293,
+  "metrics": {
+    "accuracy": 0.9833287596048299,
+    "precision": 0.9806738715829625,
+    "recall": 0.9883393131727319,
+    "f1": 0.9844916714531878,
+    "roc_auc": 0.9986625022744179,
+    "optimal_threshold": 0.4562220573425293
+  }
+}

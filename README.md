@@ -92,7 +92,7 @@ cd AI-Powered-Phishing-Detection-Seargin
 ### 2. Run the app
 
 ```bash
-./run.sh
+./run.sh ios || ./run.sh android
 ```
 
 ### …or manually:

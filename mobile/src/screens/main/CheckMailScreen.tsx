@@ -30,7 +30,7 @@ import { useStats } from '../../contexts/StatsContext'
 type ScanState =
     | { status: 'idle' }
     | { status: 'scanning' }
-    | { status: 'done'; isSafe: boolean; confidence: number }
+    | { status: 'done'; isSafe: boolean; confidence: number; uncertain: boolean }
     | { status: 'error'; message: string }
 
 const AVATAR_COLORS = ['#1565C0', '#6A1B9A', '#00838F', '#2E7D32', '#E65100', '#AD1457', '#37474F']
@@ -128,7 +128,14 @@ const CheckMailScreen = () => {
         setScanStates(prev => ({ ...prev, [email.id]: { status: 'scanning' } }))
         try {
             const body = await fetchMessageBody(accessToken, email.id)
-            const result = await checkMail(body || email.snippet, user.idToken)
+            const result = await checkMail(
+                {
+                    subject: email.subject,
+                    body: body || email.snippet,
+                    sender: email.fromEmail || email.from,
+                },
+                user.idToken,
+            )
             if (!result.ok) {
                 console.error('[CheckMailScreen] Scan API error:', result.error)
                 setScanStates(prev => ({ ...prev, [email.id]: { status: 'error', message: result.error } }))
@@ -142,6 +149,7 @@ const CheckMailScreen = () => {
                     status: 'done',
                     isSafe: !result.data.is_phishing,
                     confidence: result.data.confidence,
+                    uncertain: result.data.uncertain ?? false,
                 },
             }))
         } catch (e: any) {
@@ -158,7 +166,7 @@ const CheckMailScreen = () => {
             return <ActivityIndicator size="small" color={colors.primary} />
         }
         if (state.status === 'done') {
-            const uncertain = state.isSafe && state.confidence < 0.5
+            const uncertain = state.uncertain
             const danger = !state.isSafe
             const bg = danger ? '#FFEBEE' : uncertain ? '#FFFDE7' : '#E8F5E9'
             const color = danger ? '#C62828' : uncertain ? '#E65100' : '#4CAF50'

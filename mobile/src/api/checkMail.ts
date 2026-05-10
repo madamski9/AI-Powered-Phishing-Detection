@@ -1,19 +1,30 @@
 import { tryCatch } from '../utils/try-catch'
 
+interface CheckMailParams {
+    subject: string
+    body: string
+    sender: string
+    urls?: string
+}
+
 interface CheckMailResponse {
-    type: 'mail'
-    input: string
     is_phishing: boolean
     confidence: number
+    uncertain: boolean
 }
 
 export async function checkMail(
-    emailBody: string,
+    params: CheckMailParams,
     idToken: string,
 ): Promise<{ ok: true; data: CheckMailResponse } | { ok: false; error: string }> {
-    const endpoint = `${process.env.EXPO_PUBLIC_API_URL}/check-url`
+    const endpoint = `${process.env.EXPO_PUBLIC_API_URL}/check-mail`
 
-    console.log('[checkMail] POST', endpoint, '| body chars:', emailBody.length)
+    console.log(
+        '[checkMail] POST', endpoint,
+        '| subject:', params.subject.slice(0, 60),
+        '| body chars:', params.body.length,
+        '| sender:', params.sender,
+    )
 
     const [response, networkError] = await tryCatch(
         fetch(endpoint, {
@@ -22,7 +33,12 @@ export async function checkMail(
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${idToken}`,
             },
-            body: JSON.stringify({ type: 'mail', input: emailBody.slice(0, 3000) }),
+            body: JSON.stringify({
+                subject: params.subject.slice(0, 500),
+                body: params.body.slice(0, 3000),
+                sender: params.sender,
+                urls: params.urls ?? '',
+            }),
         }),
     )
 
@@ -40,6 +56,6 @@ export async function checkMail(
         return { ok: false, error: payload }
     }
 
-    console.log('[checkMail] Result — is_phishing:', data.is_phishing, 'confidence:', data.confidence)
+    console.log('[checkMail] Result — is_phishing:', data.is_phishing, 'confidence:', data.confidence, 'uncertain:', data.uncertain)
     return { ok: true, data }
 }
