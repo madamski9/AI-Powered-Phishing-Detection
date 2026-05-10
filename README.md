@@ -12,34 +12,13 @@
 
 <div align="center">
 
-#### Mobile
-
-![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![StyleSheet](https://img.shields.io/badge/StyleSheet-61DAFB?style=for-the-badge&logo=react&logoColor=20232A)
-
-#### Backend
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
-
-#### Machine Learning
-
-![XGBoost](https://img.shields.io/badge/XGBoost-EB6C2D?style=for-the-badge&logo=xgboost&logoColor=white)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
-![pandas](https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)
-![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)
-
-#### DevOps
-
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Shell](https://img.shields.io/badge/Shell-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
-
-#### Auth & Integrations
-
-![Google OAuth](https://img.shields.io/badge/Google_OAuth_2.0-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![Gmail API](https://img.shields.io/badge/Gmail_API-EA4335?style=for-the-badge&logo=gmail&logoColor=white)
+| Area | Technology |
+|:---:|:---:|
+| Mobile application | <img height="40" src="https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"><img height="40" src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white"><img height="40" src="https://img.shields.io/badge/StyleSheet-61DAFB?style=for-the-badge&logo=react&logoColor=20232A"> |
+| Backend API | <img height="40" src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"><img height="40" src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"><img height="40" src="https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white"> |
+| Machine Learning | <img height="40" src="https://img.shields.io/badge/XGBoost-EB6C2D?style=for-the-badge"><img height="40" src="https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white"><img height="40" src="https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white"><img height="40" src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white"> |
+| Authentication & Integrations | <img height="40" src="https://img.shields.io/badge/Google%20OAuth%202.0-4285F4?style=for-the-badge&logo=google&logoColor=white"><img height="40" src="https://img.shields.io/badge/Gmail%20API-EA4335?style=for-the-badge&logo=gmail&logoColor=white"><img height="40" src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"> |
+| DevOps & Infrastructure | <img height="40" src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"><img height="40" src="https://img.shields.io/badge/Shell-121011?style=for-the-badge&logo=gnu-bash&logoColor=white"> |
 
 </div>
 
@@ -50,6 +29,8 @@
 **AI-Powered Phishing Detection** is a mobile application that helps users identify phishing attempts in real time. The system analyzes suspicious URLs and emails using a machine-learning model trained on phishing indicators, returning a clear verdict to the user within seconds.
 
 The project is built with a contenerization architecture: a React Native mobile client communicates with a FastAPI backend, which delegates classification to a dedicated ML inference service. The whole stack is containerized with Docker and orchestrated via Docker Compose.
+
+**Firebase** is integrated into the mobile application to support authentication flows and native service configuration on Android and iOS.
 
 ## Features
 
