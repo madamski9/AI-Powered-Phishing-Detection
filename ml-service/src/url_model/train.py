@@ -4,7 +4,6 @@ import xgboost as xgb
 import joblib
 import os
 import sys
-import shutil
 from pathlib import Path
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.preprocessing import StandardScaler
@@ -342,56 +341,10 @@ class URLPhishingModelTrainer:
             print(f"Feature names saved to: {features_path}")
 
             # Export to API
-            self._export_to_api(model_path, features_path)
-
-            return model_path
+                return model_path
         except Exception as e:
             print(f"Error saving model: {e}")
             raise
-
-    def _export_to_api(self, model_path: Path, features_path: Path):
-        """Export model and features to API folder for production"""
-        try:
-            api_models_dir = Path(__file__).parent.parent.parent.parent / 'api' / 'app' / 'models'
-            api_models_dir.mkdir(parents=True, exist_ok=True)
-
-            # Copy model
-            api_model_path = api_models_dir / 'phishing_detector.joblib'
-            shutil.copy(model_path, api_model_path)
-            print(f"\nExported model to API: {api_model_path}")
-
-            # Copy features
-            api_features_path = api_models_dir / 'features.txt'
-            shutil.copy(features_path, api_features_path)
-            print(f"Exported features to API: {api_features_path}")
-
-            # Create metadata — convert numpy types to plain Python for JSON
-            def _to_python(obj):
-                import numpy as np
-                if isinstance(obj, (np.floating, np.float32, np.float64)):
-                    return float(obj)
-                if isinstance(obj, (np.integer,)):
-                    return int(obj)
-                if isinstance(obj, dict):
-                    return {k: _to_python(v) for k, v in obj.items()}
-                return obj
-
-            metadata = _to_python({
-                'model_name': 'phishing_detector',
-                'version': '1.0',
-                'optimal_threshold': self.metrics.get('optimal_threshold', 0.5),
-                'metrics': self.metrics,
-            })
-
-            import json
-            metadata_path = api_models_dir / 'metadata.json'
-            with open(metadata_path, 'w') as f:
-                json.dump(metadata, f, indent=2)
-            print(f"Exported metadata to API: {metadata_path}")
-
-        except Exception as e:
-            print(f"Warning: Could not export to API: {e}")
-            # Don't fail training if API export fails
 
     def train_pipeline(self, threshold_mode: str = 'f1'):
         """

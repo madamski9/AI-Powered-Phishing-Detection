@@ -184,6 +184,7 @@ show_info() {
     print_step "EVERYTHING IS RUNNING"
 
     echo -e "${GREEN}[OK] API:${NC}              http://localhost:8080"
+    echo -e "${GREEN}[OK] ML-SERVICE:${NC}       http://localhost:8000"
     echo -e "${GREEN}[OK] Mobile App:${NC}       Running on $PLATFORM"
     echo ""
     echo -e "${CYAN}Useful commands:${NC}"
