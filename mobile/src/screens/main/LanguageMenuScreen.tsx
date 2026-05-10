@@ -6,7 +6,7 @@ import {
   Text,
   ScrollView,
 } from "react-native";
-import { useTheme } from "react-native-paper";
+import { useTheme, Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import i18n from "../../locales/i18n";
@@ -30,17 +30,20 @@ const LanguageMenu = () => {
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={25} color={colors.primary} />
-        </TouchableOpacity>
-        <Text style={[styles.header, { color: colors.primary }]}>
-          {t("menu.language")}
-        </Text>
-      </View>
+        <View style={styles.header}>
+            <Button
+                onPress={() => navigation.goBack()}
+                icon="arrow-left"
+                textColor={colors.primary}
+                compact
+            >
+                {t('menu.back')}
+            </Button>
+            <Text style={[styles.screenTitle, { color: colors.onBackground }]}>
+                {t('menu.language')}
+            </Text>
+            <View style={{ width: 72 }} />
+        </View>
       <ScrollView style={styles.content}>
         {languages.map((language) => (
           <TouchableOpacity
@@ -77,47 +80,51 @@ const LanguageMenu = () => {
 export default LanguageMenu;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  backButton: {
-    padding: 5,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  languageItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "transparent",
-  },
-  languageInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  flagIcon: {
-    marginRight: 12,
-  },
-  languageName: {
-    fontSize: 18,
-    fontWeight: "500",
-  },
+    container: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 8,
+        marginBottom: 20
+    },
+    screenTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    backButton: {
+        padding: 5,
+        paddingHorizontal: 20,
+    },
+    headerTitle: {
+        fontSize: 24,
+        fontWeight: "bold",
+    },
+    content: {
+        flex: 1,
+        paddingHorizontal: 20,
+    },
+    languageItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "transparent",
+    },
+    languageInfo: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    flagIcon: {
+        marginRight: 12,
+    },
+    languageName: {
+        fontSize: 18,
+        fontWeight: "500",
+    },
 });
