@@ -14,8 +14,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useStats } from '../../contexts/StatsContext'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
-const { height, width } = Dimensions.get('window')
+import Menu from '../../components/Menu'
 
 const MainScreen = () => {
     const { colors } = useTheme()
@@ -31,16 +30,9 @@ const MainScreen = () => {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <Menu />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.greetingSection}>
-                    <TouchableOpacity
-                        style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}
-                        onPress={handleLogout}
-                        activeOpacity={0.7}
-                    >
-                        <MaterialCommunityIcons name="logout" size={18} color={colors.onBackground} />
-                        <Text style={[styles.logoutText, { color: colors.onBackground }]}>Wyloguj</Text>
-                    </TouchableOpacity>
                     <Text style={[styles.greetingTitle, { color: colors.onBackground }]}>
                         {t('dashboard.greeting', { name: user?.name || 'User' })}
                     </Text>

@@ -9,7 +9,7 @@ export const themeLight = {
     ...LightTheme.colors,
     primary: "#0F172A",
     secondary: "#334155",
-    background: "rgba(255, 255, 255, 0.75)",
+    background: "rgb(244, 244, 244)",
     error: "#B00020",
     onError: "#ffffffff",
     tertiary: "#64748B",
@@ -20,7 +20,7 @@ export const themeDark = {
   colors: {
     ...DarkTheme.colors,
     primary: "#3B82F6",
-    secondary: "#F8FAFC",
+    secondary: "#334155",
     background: "#1E293B",
     tertiary: "#0F172A",
     error: "#CF6679",

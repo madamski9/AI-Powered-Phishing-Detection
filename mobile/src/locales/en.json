@@ -61,8 +61,20 @@
     "scanButton": "Scan now",
     "recentScans": "Recent scans",
     "safe": "SAFE",
-    "warning": "WARNING",
-    "notSure": "NOT SURE",
+    "warning": "PHISHING",
+    "notSure": "UNSURE",
     "notSureHint": "Better not click it"
+  },
+  "menu": {
+    "profile": "Profile",
+    "myProfile": "My Profile",
+    "storage": "Scan History",
+    "offers": "Reports",
+    "settings": "Settings",
+    "darkMode": "Dark Mode",
+    "language": "Language",
+    "logout": "Sign Out",
+    "support": "Support",
+    "contactUs": "Contact Us"
   }
 }
