@@ -1,5 +1,4 @@
 import json
-import shutil
 import sys
 import warnings
 from pathlib import Path
@@ -193,32 +192,7 @@ class EmailPhishingModelTrainer:
         metadata_path.write_text(json.dumps(metadata, indent=2))
         print(f"Metadata: {metadata_path}")
 
-        self._export_to_api(model_path, features_path)
         return model_path
-
-    def _export_to_api(self, model_path: Path, features_path: Path):
-        try:
-            api_dir = Path(__file__).parent.parent.parent.parent / 'api' / 'app' / 'models'
-            api_dir.mkdir(parents=True, exist_ok=True)
-
-            shutil.copy(model_path, api_dir / 'email_phishing_detector.joblib')
-            shutil.copy(features_path, api_dir / 'email_features.txt')
-
-            # Also export TF-IDF vectorizer so the API can use it at inference time
-            vectorizer_src = Path(__file__).parent.parent.parent / 'data' / 'emails' / 'processed' / 'tfidf_vectorizer.joblib'
-            if vectorizer_src.exists():
-                shutil.copy(vectorizer_src, api_dir / 'email_tfidf_vectorizer.joblib')
-
-            metadata = {
-                'model_name': 'email_phishing_detector',
-                'version': '1.0',
-                'optimal_threshold': self.metrics.get('optimal_threshold', 0.5),
-                'metrics': self.metrics,
-            }
-            (api_dir / 'email_metadata.json').write_text(json.dumps(metadata, indent=2))
-            print(f"\nExported to API: {api_dir}")
-        except Exception as e:
-            print(f"Warning: Could not export to API: {e}")
 
     def train_pipeline(self):
         print("\n" + "=" * 60)
