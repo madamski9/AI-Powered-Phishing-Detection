@@ -63,9 +63,9 @@ The project is built with a contenerization architecture: a React Native mobile 
 ## Screenshots
 <div align="center">
 
-| App entry | Home screen | Email scanner | URL scanner | Menu |
-|-----------|-------------|----------------|--------------|------|
-| <img alt="IMG_7201" src="https://github.com/user-attachments/assets/d0313b54-f367-4f6f-a33f-0226d4a4c72e" width="250"/> | <img alt="IMG_7198" src="https://github.com/user-attachments/assets/ef5e7998-e60d-426f-97da-6469e3c1b6e2" width="250"/> | <img alt="IMG_7197" src="https://github.com/user-attachments/assets/12231044-e263-4df7-8256-12417d731e86" width="250"/> | <img alt="IMG_7199" src="https://github.com/user-attachments/assets/ab76acd6-d410-4eea-87b7-3e71fdb294d8" width="250"/> | <img alt="IMG_7200" src="https://github.com/user-attachments/assets/6211de2c-d946-47c1-acde-1384d064ab38" width="250"/> |
+| App entry | Home screen | Email scanner | URL scanner |
+|-----------|-------------|----------------|--------------|
+| <img alt="IMG_7201" src="https://github.com/user-attachments/assets/d0313b54-f367-4f6f-a33f-0226d4a4c72e" width="250"/> | <img alt="IMG_7198" src="https://github.com/user-attachments/assets/ef5e7998-e60d-426f-97da-6469e3c1b6e2" width="250"/> | <img alt="IMG_7197" src="https://github.com/user-attachments/assets/12231044-e263-4df7-8256-12417d731e86" width="250"/> | <img alt="IMG_7199" src="https://github.com/user-attachments/assets/ab76acd6-d410-4eea-87b7-3e71fdb294d8" width="250"/> |
 
 </div>
 
