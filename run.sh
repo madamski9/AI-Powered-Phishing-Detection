@@ -81,25 +81,26 @@ start_api() {
     fi
 
     # Wait for API to be ready
-    print_info "Waiting for API to be ready (checking health endpoint)..."
+    print_info "Waiting for API and ML-service to be ready (checking health endpoints)..."
 
     local max_attempts=30
     local attempt=1
 
     while [ $attempt -le $max_attempts ]; do
-        if curl -sf http://localhost:8080/health &> /dev/null 2>&1 || \
-           curl -sf http://localhost:8080/ &> /dev/null 2>&1; then
-            print_success "API is ready!"
+        if curl -sf http://localhost:8080/health > /dev/null 2>&1 && \
+           curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+            print_success "API and ML-service are ready!"
             echo -e "${GREEN}[OK] API running at http://localhost:8080${NC}"
+            echo -e "${GREEN}[OK] ML-service running at http://localhost:8000${NC}"
             return 0
         fi
 
-        echo -ne "\r${CYAN}Waiting for API... (${attempt}/${max_attempts})${NC}"
+        echo -ne "\r${CYAN}Waiting for services... (${attempt}/${max_attempts})${NC}"
         sleep 1
         ((attempt++))
     done
 
-    print_warning "API health check timed out (it may still be starting)"
+    print_warning "API or ML-service health check timed out (it may still be starting)"
     return 0
 }
 

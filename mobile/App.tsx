@@ -14,6 +14,7 @@ import { ThemeProvider } from "./src/contexts/ThemeContext";
 import './src/locales/i18n';
 import AuthLoadingScreen from './src/screens/auth/AuthLoadingScreen';
 import LanguageMenu from './src/screens/main/LanguageMenuScreen';
+import UserProfileScreen from './src/screens/main/UserProfileScreen';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
               <Stack.Screen name="CheckUrl" component={CheckUrlScreen}/>
               <Stack.Screen name="CheckMail" component={CheckMailScreen}/>
               <Stack.Screen name="Language" component={LanguageMenu} />
+              <Stack.Screen name="UserProfile" component={UserProfileScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </AuthProvider>

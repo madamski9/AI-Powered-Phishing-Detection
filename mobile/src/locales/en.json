@@ -75,6 +75,22 @@
     "language": "Language",
     "logout": "Sign Out",
     "support": "Support",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "back": "Back"
+  }
+  ,
+  "profile": {
+    "back": "Back",
+    "title": "My Profile",
+    "accountInfo": "Account Information",
+    "memberSince": "Member since",
+    "lastSignIn": "Last sign in",
+    "emailVerified": "Email verified",
+    "yes": "Yes",
+    "no": "No",
+    "scanActivity": "Scan Activity",
+    "totalScans": "Total scans",
+    "threats": "Threats found",
+    "safeRate": "Safe rate"
   }
 }

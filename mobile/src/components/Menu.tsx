@@ -125,7 +125,7 @@ const Menu = () => {
             style={[styles.menuBox, { backgroundColor: colors.surface }]}
           >
             <TouchableOpacity
-              onPress={() => navigation.navigate("MyProfile")}
+              onPress={() => navigation.navigate("UserProfile")}
               style={[
                 styles.menuItem,
                 { backgroundColor: colors.surface },

@@ -75,6 +75,22 @@
     "language": "Język",
     "logout": "Wyloguj się",
     "support": "Pomoc",
-    "contactUs": "Kontakt"
+    "contactUs": "Kontakt",
+    "back": "Wróć"
+  }
+  ,
+  "profile": {
+    "back": "Wróć",
+    "title": "Mój profil",
+    "accountInfo": "Informacje o koncie",
+    "memberSince": "Członek od",
+    "lastSignIn": "Ostatnie logowanie",
+    "emailVerified": "E-mail zweryfikowany",
+    "yes": "Tak",
+    "no": "Nie",
+    "scanActivity": "Aktywność skanowania",
+    "totalScans": "Liczba skanów",
+    "threats": "Znalezione zagrożenia",
+    "safeRate": "Poziom bezpieczeństwa"
   }
 }
