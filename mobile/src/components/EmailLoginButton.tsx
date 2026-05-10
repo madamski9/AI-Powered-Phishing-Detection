@@ -11,6 +11,7 @@ import { useTheme, Text, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthStatus } from "../enum/authStatus";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 interface EmailProps {
@@ -23,6 +24,7 @@ const EmailButton = ({ email, password }: EmailProps) => {
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const { signInWithEmailPassword } = useAuth();
   const navigation = useNavigation<any>();
+  const { isDarkMode } = useThemeContext()
 
   const handleEmailAuth = async () => {
     if (!email || !email.includes('@')) {
@@ -54,13 +56,13 @@ const EmailButton = ({ email, password }: EmailProps) => {
       labelStyle={{ color: "white", fontSize: 16, fontWeight: "600" }}
       style={[
         styles.googleButton,
-        { backgroundColor: "rgba(235, 235, 235, 0.75)" },
+        { backgroundColor: colors.secondary },
       ]}
       onPress={handleEmailAuth}
       disabled={isSubmiting}
       loading={isSubmiting}
     >
-        <Text style={styles.text}>
+        <Text style={[styles.text, { color: isDarkMode ? "white" :  colors.onSecondary }]}>
             {isSubmiting
                 ? t("auth.continuingWithEmail")
                 : t("auth.continueWithEmail")}

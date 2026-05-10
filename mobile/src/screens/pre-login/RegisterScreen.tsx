@@ -70,7 +70,7 @@ const RegisterScreen = () => {
                         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}>
                             <View style={styles.formSection}>
                                 <Input
-                                    style={[styles.input, { backgroundColor: 'white' }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode="outlined"
                                     placeholder={t('auth.name')}
                                     value={payload.name}
@@ -80,7 +80,7 @@ const RegisterScreen = () => {
                                     }}
                                 />
                                 <Input
-                                    style={[styles.input, { backgroundColor: 'white' }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode="outlined"
                                     placeholder={t('auth.emailAddress')}
                                     value={payload.email}
@@ -90,7 +90,7 @@ const RegisterScreen = () => {
                                     }}
                                 />
                                 <Input
-                                    style={[styles.input, { backgroundColor: 'white' }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode="outlined"
                                     secure={true}
                                     placeholder={t('auth.password')}
@@ -101,7 +101,7 @@ const RegisterScreen = () => {
                                     }}
                                 />
                                 <Input
-                                    style={[styles.input, { backgroundColor: 'white' }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode="outlined"
                                     secure={true}
                                     placeholder={t('auth.confirmPassword')}

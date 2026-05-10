@@ -185,7 +185,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		if (googleSignOutError) {
 			console.warn("Google sign out error:", googleSignOutError);
 		}
-
 		setUser(null);
 		setAuthStatus(AuthStatus.ERROR);
 		setLoading(false);

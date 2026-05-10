@@ -49,20 +49,20 @@ const HomeScreen = () => {
                         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}>
                             <GoogleLoginButton />
                             <View style={styles.separatorRow}>
-                                <View style={styles.separatorLine} />
+                                <View style={[styles.separatorLine, { backgroundColor: colors.onSurface }]} />
                                 <Text style={[styles.separatorText, { color: colors.onSurface }]}>{t('auth.or')}</Text>
-                                <View style={styles.separatorLine} />
+                                <View style={[styles.separatorLine, { backgroundColor: colors.onSurface }]} />
                             </View>
                             <View style={styles.emailSection}>
                                 <Input
-                                    style={[styles.input, { backgroundColor: "white" }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode='outlined'
                                     placeholder={t('auth.emailAddress')}
                                     value={payload.email}
                                     onChangeText={(text) => setPayload({ ...payload, email: text })}
                                 />
                                 <Input
-                                    style={[styles.input, { backgroundColor: "white" }]}
+                                    style={[styles.input, { backgroundColor: colors.surface }]}
                                     mode='outlined'
                                     secure={true}
                                     placeholder={t('auth.password')}

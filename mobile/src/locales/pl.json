@@ -41,7 +41,7 @@
     "loading": "Wczytywanie...",
     "safe": "BEZPIECZNY",
     "warning": "PHISHING",
-    "notSure": "NOT SURE",
+    "notSure": "NIEPEWNY",
     "notSureHint": "Lepiej nie klikać",
     "inbox": "Skrzynka odbiorcza",
     "noGoogle": "Wymagane konto Google",
@@ -60,9 +60,21 @@
     "inputPlaceholder": "Wklej link do sprawdzenia",
     "scanButton": "Skanuj teraz",
     "recentScans": "Ostatnie skany",
-    "safe": "SAFE",
-    "warning": "WARNING",
-    "notSure": "NOT SURE",
+    "safe": "BEZPIECZNY",
+    "warning": "ZAGROŻENIE",
+    "notSure": "NIEPEWNY",
     "notSureHint": "Lepiej nie klikać"
+  },
+  "menu": {
+    "profile": "Profil",
+    "myProfile": "Mój profil",
+    "storage": "Historia skanów",
+    "offers": "Raporty",
+    "settings": "Ustawienia",
+    "darkMode": "Tryb ciemny",
+    "language": "Język",
+    "logout": "Wyloguj się",
+    "support": "Pomoc",
+    "contactUs": "Kontakt"
   }
 }
