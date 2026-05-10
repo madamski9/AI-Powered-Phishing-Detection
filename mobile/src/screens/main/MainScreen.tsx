@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons'
 import { useTheme } from 'react-native-paper'
 import { useAuth } from '../../contexts/AuthContext'
+import { useStats } from '../../contexts/StatsContext'
 import { useNavigation } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -21,11 +22,8 @@ const MainScreen = () => {
     const { t } = useTranslation()
     const { user, logout } = useAuth()
     const navigation = useNavigation<any>()
-    const stats = {
-        scanned: 342,
-        threats: 18,
-        safePercentage: 95,
-    }
+    const { stats: { scanned, threats } } = useStats()
+    const safePercentage = scanned > 0 ? Math.round((scanned - threats) / scanned * 100) : 100
     const handleLogout = async () => {
         await logout()
         navigation.replace('Home')
@@ -71,6 +69,7 @@ const MainScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.scanCard, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}
+                        onPress={() => navigation.navigate('CheckMail')}
                         activeOpacity={0.7}
                     >
                         <View style={styles.cardHeader}>
@@ -95,7 +94,7 @@ const MainScreen = () => {
                 <View style={styles.statsContainer}>
                     <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: 'rgba(0, 0, 0, 0.12)' }]}>
                         <Text style={[styles.statValue, { color: colors.primary }]}>
-                            {stats.scanned}
+                            {scanned}
                         </Text>
                         <Text style={[styles.statLabel, { color: colors.onBackground }]}>
                             {t('dashboard.scanned')}
@@ -105,7 +104,7 @@ const MainScreen = () => {
                         <View style={styles.threatsContent}>
                             <AntDesign name="warning" size={20} color="#C62828" style={styles.threatsIcon} />
                             <Text style={styles.statValueThreats}>
-                                {stats.threats}
+                                {threats}
                             </Text>
                         </View>
                         <Text style={[styles.statLabel, { color: colors.onBackground }]}>
@@ -124,7 +123,7 @@ const MainScreen = () => {
                                     style={[
                                         styles.progressFill,
                                         {
-                                            width: `${stats.safePercentage}%`,
+                                            width: `${safePercentage}%`,
                                             backgroundColor: colors.primary,
                                         },
                                     ]}
@@ -133,7 +132,7 @@ const MainScreen = () => {
                         </View>
                         <View style={styles.percentageCircle}>
                             <Text style={[styles.percentageText, { color: colors.primary }]}>
-                                {stats.safePercentage}%
+                                {safePercentage}%
                             </Text>
                             <Text style={[styles.percentageLabel, { color: colors.onBackground }]}>
                                 {t('dashboard.safe')}

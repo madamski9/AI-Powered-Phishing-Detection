@@ -31,6 +31,29 @@
     "securityLevel": "Security level",
     "safe": "Safe"
   },
+  "emailCheck": {
+    "title": "Scan email",
+    "subtitle": "Check your Gmail messages for phishing and data theft attempts.",
+    "searchPlaceholder": "Search inbox",
+    "searchButton": "Search",
+    "scanButton": "Scan",
+    "scanning": "Scanning...",
+    "loading": "Loading...",
+    "safe": "SAFE",
+    "warning": "PHISHING",
+    "notSure": "NOT SURE",
+    "notSureHint": "Better not click it",
+    "inbox": "Inbox",
+    "noGoogle": "Google account required",
+    "noGoogleDesc": "Sign in with Google to browse and scan your Gmail messages.",
+    "noEmails": "No messages found",
+    "fetchError": "Failed to load messages",
+    "tokenError": "Could not get Gmail access",
+    "scanError": "Scan error",
+    "reauthTitle": "Re-login required",
+    "reauthDesc": "Your session does not have Gmail permission. Click below to revoke access and sign in again — this time you will see the consent screen with Gmail permission.",
+    "reauthButton": "Sign in again"
+  },
   "urlCheck": {
     "title": "Scan URL",
     "subtitle": "Paste a suspicious URL below to instantly check it for phishing threats.",
@@ -38,6 +61,8 @@
     "scanButton": "Scan now",
     "recentScans": "Recent scans",
     "safe": "SAFE",
-    "warning": "WARNING"
+    "warning": "WARNING",
+    "notSure": "NOT SURE",
+    "notSureHint": "Better not click it"
   }
 }

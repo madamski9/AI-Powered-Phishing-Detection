@@ -31,6 +31,29 @@
     "securityLevel": "Poziom bezpieczeństwa",
     "safe": "Bezpieczne"
   },
+  "emailCheck": {
+    "title": "Skanuj email",
+    "subtitle": "Sprawdź swoje wiadomości Gmail pod kątem phishingu i wyłudzania danych.",
+    "searchPlaceholder": "Szukaj w skrzynce odbiorczej",
+    "searchButton": "Szukaj",
+    "scanButton": "Skanuj",
+    "scanning": "Skanowanie...",
+    "loading": "Wczytywanie...",
+    "safe": "BEZPIECZNY",
+    "warning": "PHISHING",
+    "notSure": "NOT SURE",
+    "notSureHint": "Lepiej nie klikać",
+    "inbox": "Skrzynka odbiorcza",
+    "noGoogle": "Wymagane konto Google",
+    "noGoogleDesc": "Zaloguj się przez Google, aby przeglądać i skanować wiadomości Gmail.",
+    "noEmails": "Brak wiadomości",
+    "fetchError": "Nie udało się pobrać wiadomości",
+    "tokenError": "Nie udało się uzyskać dostępu do Gmail",
+    "scanError": "Błąd skanowania",
+    "reauthTitle": "Wymagane ponowne zalogowanie",
+    "reauthDesc": "Twoja sesja nie ma uprawnień do Gmail. Kliknij poniżej, aby cofnąć dostęp i zalogować się ponownie — tym razem zobaczysz ekran zgody z uprawnieniem do Gmail.",
+    "reauthButton": "Zaloguj się ponownie"
+  },
   "urlCheck": {
     "title": "Skanuj link",
     "subtitle": "Wklej podejrzany adres URL poniżej, aby natychmiast sprawdzić go pod kątem zagrożeń phishingowych.",
@@ -38,6 +61,8 @@
     "scanButton": "Skanuj teraz",
     "recentScans": "Ostatnie skany",
     "safe": "SAFE",
-    "warning": "WARNING"
+    "warning": "WARNING",
+    "notSure": "NOT SURE",
+    "notSureHint": "Lepiej nie klikać"
   }
 }
