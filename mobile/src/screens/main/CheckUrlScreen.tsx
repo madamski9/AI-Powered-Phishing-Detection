@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Input from '../../components/Input'
 import SwipeableRow from '../../components/SwipeableRow'
 import { useAuth } from '../../contexts/AuthContext'
+import { useStats } from '../../contexts/StatsContext'
 import { checkUrl } from '../../api/checkUrl'
 
 const SCANS_STORAGE_KEY = '@url_scans'
@@ -49,6 +50,7 @@ const CheckUrlScreen = () => {
     const { colors } = useTheme()
     const { t } = useTranslation()
     const { user } = useAuth()
+    const { recordScan } = useStats()
     const [url, setUrl] = useState('')
     const [isScanning, setIsScanning] = useState(false)
     const [scanResult, setScanResult] = useState<UrlScanResult | null>(null)
@@ -109,6 +111,7 @@ const CheckUrlScreen = () => {
             timestamp: new Date(),
         }
 
+        recordScan(result.data.is_phishing)
         setScanResult(newScan)
         setRecentScans(prev => {
             const updated = [newScan, ...prev].slice(0, MAX_STORED_SCANS)
@@ -168,31 +171,34 @@ const CheckUrlScreen = () => {
                         </View>
                     </View>
                 )}
-                {scanResult && (
-                    <View style={[
-                        styles.resultCard,
-                        {
-                            backgroundColor: scanResult.isSafe ? '#F1FFF4' : '#FFF3F3',
-                            borderColor: scanResult.isSafe ? '#4CAF50' : '#C62828',
-                        }
-                    ]}>
-                        {scanResult.isSafe
-                            ? <AntDesign name="check-circle" size={28} color="#4CAF50" />
-                            : <AntDesign name="warning" size={28} color="#C62828" />
-                        }
-                        <View style={styles.resultTextWrapper}>
-                            <Text style={[styles.resultLabel, { color: scanResult.isSafe ? '#4CAF50' : '#C62828' }]}>
-                                {scanResult.isSafe ? t('urlCheck.safe') : t('urlCheck.warning')}
-                            </Text>
-                            <Text style={styles.resultDetail} numberOfLines={1}>
-                                {truncateUrl(scanResult.url)}
-                            </Text>
-                            <Text style={styles.resultConfidence}>
-                                Pewność: {Math.round(scanResult.confidence * 100)}%
-                            </Text>
+                {scanResult && (() => {
+                    const uncertain = scanResult.isSafe && scanResult.confidence < 0.5
+                    const danger = !scanResult.isSafe
+                    const bg = danger ? '#FFF3F3' : uncertain ? '#FFFDE7' : '#F1FFF4'
+                    const border = danger ? '#C62828' : uncertain ? '#F9A825' : '#4CAF50'
+                    const color = danger ? '#C62828' : uncertain ? '#E65100' : '#4CAF50'
+                    const icon = danger ? 'warning' : uncertain ? 'exclamation-circle' : 'check-circle'
+                    const label = danger ? t('urlCheck.warning') : uncertain ? t('urlCheck.notSure') : t('urlCheck.safe')
+                    return (
+                        <View style={[styles.resultCard, { backgroundColor: bg, borderColor: border }]}>
+                            <AntDesign name={icon} size={28} color={color} />
+                            <View style={styles.resultTextWrapper}>
+                                <Text style={[styles.resultLabel, { color }]}>{label}</Text>
+                                <Text style={styles.resultDetail} numberOfLines={1}>
+                                    {truncateUrl(scanResult.url)}
+                                </Text>
+                                {uncertain && (
+                                    <Text style={[styles.resultDetail, { color: '#E65100' }]}>
+                                        {t('urlCheck.notSureHint')}
+                                    </Text>
+                                )}
+                                <Text style={styles.resultConfidence}>
+                                    Pewność: {Math.round(scanResult.confidence * 100)}%
+                                </Text>
+                            </View>
                         </View>
-                    </View>
-                )}
+                    )
+                })()}
                 {recentScans.length > 0 && (
                     <View style={styles.recentScansSection}>
                         <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>
@@ -211,9 +217,11 @@ const CheckUrlScreen = () => {
                                     ]}
                                 >
                                     <View style={styles.scanItemLeft}>
-                                        {scan.isSafe
-                                            ? <AntDesign name="check-circle" size={24} color="#4CAF50" />
-                                            : <AntDesign name="warning" size={24} color="#C62828" />
+                                        {!scan.isSafe
+                                            ? <AntDesign name="warning" size={24} color="#C62828" />
+                                            : scan.confidence < 0.5
+                                                ? <AntDesign name="exclamation-circle" size={24} color="#F9A825" />
+                                                : <AntDesign name="check-circle" size={24} color="#4CAF50" />
                                         }
                                     </View>
                                     <View style={styles.scanItemCenter}>
@@ -228,8 +236,10 @@ const CheckUrlScreen = () => {
                                         </Text>
                                     </View>
                                     <View style={styles.scanItemRight}>
-                                        <Text style={[styles.scanItemStatus, { color: scan.isSafe ? '#4CAF50' : '#C62828' }]}>
-                                            {scan.isSafe ? t('urlCheck.safe') : t('urlCheck.warning')}
+                                        <Text style={[styles.scanItemStatus, {
+                                            color: !scan.isSafe ? '#C62828' : scan.confidence < 0.5 ? '#E65100' : '#4CAF50'
+                                        }]}>
+                                            {!scan.isSafe ? t('urlCheck.warning') : scan.confidence < 0.5 ? t('urlCheck.notSure') : t('urlCheck.safe')}
                                         </Text>
                                     </View>
                                 </View>
