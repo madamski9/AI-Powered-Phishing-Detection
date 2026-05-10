@@ -167,8 +167,8 @@ const CheckMailScreen = () => {
             return <ActivityIndicator size="small" color={colors.primary} />
         }
         if (state.status === 'done') {
-            const uncertain = state.uncertain
-            const danger = !state.isSafe
+            const uncertain = state.confidence < 0.70
+            const danger = !state.isSafe && !uncertain
             const bg = danger ? '#FFEBEE' : uncertain ? '#FFFDE7' : '#E8F5E9'
             const color = danger ? '#C62828' : uncertain ? '#E65100' : '#4CAF50'
             const icon = danger ? 'warning' : uncertain ? 'exclamation-circle' : 'check-circle'

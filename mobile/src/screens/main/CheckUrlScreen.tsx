@@ -37,7 +37,6 @@ const truncateUrl = (url: string, maxLength: number = 35): string => {
     return url
 }
 
-// Accepts bare domains, paths and full URLs — rejects spaces and obviously malformed input
 const URL_REGEX = /^(https?:\/\/)?([a-zA-Z0-9À-ɏ]([a-zA-Z0-9À-ɏ\-]{0,61}[a-zA-Z0-9À-ɏ])?\.)+[a-zA-Z]{2,}(:\d{1,5})?(\/[^\s]*)?$/
 
 const validateUrl = (input: string): string | null => {
@@ -172,8 +171,8 @@ const CheckUrlScreen = () => {
                     </View>
                 )}
                 {scanResult && (() => {
-                    const uncertain = scanResult.isSafe && scanResult.confidence < 0.5
-                    const danger = !scanResult.isSafe
+                    const uncertain = scanResult.confidence < 0.70
+                    const danger = !scanResult.isSafe && !uncertain
                     const bg = danger ? '#FFF3F3' : uncertain ? '#FFFDE7' : '#F1FFF4'
                     const border = danger ? '#C62828' : uncertain ? '#F9A825' : '#4CAF50'
                     const color = danger ? '#C62828' : uncertain ? '#E65100' : '#4CAF50'
@@ -217,9 +216,9 @@ const CheckUrlScreen = () => {
                                     ]}
                                 >
                                     <View style={styles.scanItemLeft}>
-                                        {!scan.isSafe
+                                        {(!scan.isSafe && scan.confidence >= 0.70)
                                             ? <AntDesign name="warning" size={24} color="#C62828" />
-                                            : scan.confidence < 0.5
+                                            : scan.confidence < 0.70
                                                 ? <AntDesign name="exclamation-circle" size={24} color="#F9A825" />
                                                 : <AntDesign name="check-circle" size={24} color="#4CAF50" />
                                         }
@@ -237,9 +236,9 @@ const CheckUrlScreen = () => {
                                     </View>
                                     <View style={styles.scanItemRight}>
                                         <Text style={[styles.scanItemStatus, {
-                                            color: !scan.isSafe ? '#C62828' : scan.confidence < 0.5 ? '#E65100' : '#4CAF50'
+                                            color: (!scan.isSafe && scan.confidence >= 0.70) ? '#C62828' : scan.confidence < 0.70 ? '#E65100' : '#4CAF50'
                                         }]}>
-                                            {!scan.isSafe ? t('urlCheck.warning') : scan.confidence < 0.5 ? t('urlCheck.notSure') : t('urlCheck.safe')}
+                                            {(!scan.isSafe && scan.confidence >= 0.70) ? t('urlCheck.warning') : scan.confidence < 0.70 ? t('urlCheck.notSure') : t('urlCheck.safe')}
                                         </Text>
                                     </View>
                                 </View>
