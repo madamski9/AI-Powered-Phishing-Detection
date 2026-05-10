@@ -5,6 +5,28 @@ one for **URL phishing detection** and one for **email phishing detection**.
 Both models support Polish and English content and are designed to run inside Docker
 with a cold-start time under 5 seconds.
 
+## Table of Contents
+
+- [Architecture Overview](#architecture-overview)
+- [URL Phishing Detection](#url-phishing-detection)
+  - [Dataset](#dataset)
+  - [Feature Engineering](#feature-engineering----srcurl_modelpreprocesspy)
+  - [Model](#model----srcurl_modeltrainpy)
+  - [Results](#results)
+  - [Evaluation Plots](#evaluation-plots)
+- [Email Phishing Detection](#email-phishing-detection)
+  - [Dataset](#dataset-1)
+  - [Feature Engineering](#feature-engineering----srcemail_modelpreprocesspy)
+  - [Why Not Word Embeddings?](#why-not-word-embeddings)
+  - [Model](#model----srcemail_modeltrainpy)
+  - [Results](#results-1)
+  - [Evaluation Plots](#evaluation-plots-1)
+- [Inference API](#inference-api----app)
+- [Project Structure](#project-structure)
+- [⚠️ Limitations — Why the Reported Metrics Are Optimistic](#️-limitations--why-the-reported-metrics-are-optimistic)
+- [Regenerating Plots](#regenerating-plots)
+- [Retraining](#retraining)
+
 ---
 
 ## Architecture Overview
