@@ -50,12 +50,27 @@ The project is built with a contenerization architecture: a React Native mobile 
 
 </div>
 
+## Machine Learning
+
+The ML service contains two independent XGBoost classifiers with full documentation,
+evaluation plots, and training pipelines.
+
+→ **[ml-service/README.md](./ml-service/README.md)** — feature engineering, model architecture, results, and evaluation plots for both models.
+
+| Model | F1 | ROC-AUC |
+|---|---|---|
+| URL phishing detector | 0.8867 | 0.9860 |
+| Email phishing detector | 0.9845 | 0.9987 |
+
+> **Note:** these metrics are measured on a held-out split of the same static datasets used for training and should be treated as optimistic estimates. Real-world performance will be lower due to dataset bias, distribution shift over time, and the absence of adversarial evaluation. See the [ML service README](./ml-service/README.md#️-limitations--why-the-reported-metrics-are-optimistic) for a detailed discussion and a roadmap for future improvements.
+
 ## Project Structure
 
 ```
 AI-Powered-Phishing-Detection-Seargin/
 ├── api/                  # FastAPI backend service
-├── ml-service/           # XGBoost inference microservice
+├── ml-service/           # XGBoost inference microservice + ML docs
+│   └── README.md         # ← ML model documentation
 ├── mobile/               # React Native mobile app (TypeScript)
 ├── scripts/              # Build & utility shell scripts
 ├── docker-compose.yml    # Orchestrates all services
