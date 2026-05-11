@@ -1,4 +1,5 @@
 import { tryCatch } from '../utils/try-catch'
+import { extractEmailFeatures } from '../utils/emailFeatures'
 
 interface CheckMailParams {
     subject: string
@@ -17,13 +18,18 @@ export async function checkMail(
     params: CheckMailParams,
     idToken: string,
 ): Promise<{ ok: true; data: CheckMailResponse } | { ok: false; error: string }> {
-    const endpoint = `${process.env.EXPO_PUBLIC_API_URL}/check-mail`
+    const endpoint = `${process.env.EXPO_PUBLIC_API_URL}/check-mail/features`
+
+    const features = extractEmailFeatures(
+        params.subject.slice(0, 500),
+        params.body.slice(0, 3000),
+        params.sender,
+        params.urls ?? '',
+    )
 
     console.log(
         '[checkMail] POST', endpoint,
-        '| subject:', params.subject.slice(0, 60),
-        '| body chars:', params.body.length,
-        '| sender:', params.sender,
+        '| features computed on device, feature count:', Object.keys(features).length,
     )
 
     const [response, networkError] = await tryCatch(
@@ -33,12 +39,7 @@ export async function checkMail(
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${idToken}`,
             },
-            body: JSON.stringify({
-                subject: params.subject.slice(0, 500),
-                body: params.body.slice(0, 3000),
-                sender: params.sender,
-                urls: params.urls ?? '',
-            }),
+            body: JSON.stringify({ features }),
         }),
     )
 

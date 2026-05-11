@@ -18,11 +18,8 @@ class URLPredictRequest(BaseModel):
     input: str
 
 
-class EmailPredictRequest(BaseModel):
-    subject: str = ""
-    body: str = ""
-    sender: str = ""
-    urls: str = ""
+class EmailFeaturePredictRequest(BaseModel):
+    features: dict[str, float]
 
 
 @app.get("/health")
@@ -42,16 +39,11 @@ def predict_url(req: URLPredictRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/predict/mail")
-def predict_mail(req: EmailPredictRequest):
+@app.post("/predict/mail/features")
+def predict_mail_from_features(req: EmailFeaturePredictRequest):
     if email_predictor is None:
         raise HTTPException(status_code=503, detail="Email model not loaded — check startup logs")
     try:
-        return email_predictor.predict(
-            subject=req.subject,
-            body=req.body,
-            sender=req.sender,
-            urls=req.urls,
-        )
+        return email_predictor.predict_from_features(req.features)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

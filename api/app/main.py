@@ -17,11 +17,8 @@ class CheckUrlRequest(BaseModel):
     input: str
 
 
-class CheckMailRequest(BaseModel):
-    subject: str = ""
-    body: str = ""
-    sender: str = ""
-    urls: str = ""
+class CheckMailFeaturesRequest(BaseModel):
+    features: dict[str, float]
 
 
 @app.get("/health")
@@ -72,18 +69,13 @@ async def check_url(req: CheckUrlRequest, _user=Depends(verify_firebase_token)):
     }
 
 
-@app.post("/check-mail")
-async def check_mail(req: CheckMailRequest, _user=Depends(verify_firebase_token)):
+@app.post("/check-mail/features")
+async def check_mail_features(req: CheckMailFeaturesRequest, _user=Depends(verify_firebase_token)):
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
-                f"{ML_SERVICE_URL}/predict/mail",
-                json={
-                    "subject": req.subject,
-                    "body": req.body,
-                    "sender": req.sender,
-                    "urls": req.urls,
-                },
+                f"{ML_SERVICE_URL}/predict/mail/features",
+                json={"features": req.features},
             )
             response.raise_for_status()
             ml_result = response.json()
@@ -97,3 +89,5 @@ async def check_mail(req: CheckMailRequest, _user=Depends(verify_firebase_token)
         "confidence": ml_result["confidence"],
         "uncertain": ml_result.get("uncertain", False),
     }
+
+
