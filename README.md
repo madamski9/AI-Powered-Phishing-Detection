@@ -90,8 +90,8 @@ AI-Powered-Phishing-Detection-Seargin/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/madamski9/AI-Powered-Phishing-Detection-Seargin.git
-cd AI-Powered-Phishing-Detection-Seargin
+git clone https://github.com/madamski9/AI-Powered-Phishing-Detection.git
+cd AI-Powered-Phishing-Detection
 ```
 
 ### 2. Run the app
