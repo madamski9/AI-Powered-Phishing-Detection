@@ -67,7 +67,7 @@ evaluation plots, and training pipelines.
 ## Project Structure
 
 ```
-AI-Powered-Phishing-Detection-Seargin/
+AI-Powered-Phishing-Detection/
 ├── api/                  # FastAPI backend service
 ├── ml-service/           # XGBoost inference microservice + ML docs
 │   └── README.md         # ← ML model documentation
