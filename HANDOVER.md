@@ -12,6 +12,24 @@ This document lists every file and credential needed to run the full stack
 | `firebase_phishing_key.json` | `api/` | Firebase Admin SDK service account key |
 | `.env` | `api/` | API service environment variables |
 | `.env` | `mobile/` | Mobile app environment variables |
+| ML model files (see Step 0 below) | see below | Pre-trained XGBoost models |
+
+---
+
+## Step 0 — Download ML models
+
+The pre-trained models are not stored in the repository. Download them from Google Drive:
+
+**[Download models (Google Drive)](https://drive.google.com/drive/folders/1f4ruHcsBTUZ70GqOdjsoc5lk9zCyU8ki?usp=share_link)**
+
+Place each file in the correct location:
+
+| File | Destination |
+|---|---|
+| `email_phishing_detector.joblib` | `ml-service/src/email_model/models/` |
+| `phishing_detector.joblib` | `ml-service/src/url_model/models/` |
+
+Without these files the ML service will crash on startup.
 
 ---
 
@@ -136,14 +154,10 @@ Or use the quick-start script from the project root:
 
 ```
 project/
-├── api/
-│   ├── .env                  ← backend secrets (not in git)
-│   ├── .env.example          ← template
-│   └── app/
-│            ← place the JSON key here (not in git)
+├── api/                      ← place the JSON key and .env file here
 ├── ml-service/               ← no secrets needed, loaded via api/.env
 ├── mobile/
-│   ├── .env                  ← mobile secrets (not in git)
+│   ├── .env                  ← mobile secrets
 │   └── .env.example          ← template
 ├── docker-compose.yml
 └── HANDOVER.md               ← this file

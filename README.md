@@ -75,8 +75,15 @@ AI-Powered-Phishing-Detection/
 ├── scripts/              # Build & utility shell scripts
 ├── docker-compose.yml    # Orchestrates all services
 ├── DOCKER_README.md      # Docker-specific setup notes
+├── HANDOVER.md           # ← Step-by-step setup guide for new developers
 └── run.sh                # Quick-start launcher
 ```
+
+## Handover / Setup Guide
+
+If you're setting up this project for the first time (new team, new machine), see:
+
+→ **[HANDOVER.md](./HANDOVER.md)** — covers ML model download, environment variables, Firebase credentials, and how to get the full stack running.
 
 ## Getting Started
 

@@ -1,0 +1,14 @@
+{
+  "model_name": "phishing_detector",
+  "version": "1.0",
+  "optimal_threshold": 0.6984,
+  "metrics": {
+    "accuracy": 0.9533,
+    "precision": 0.8985,
+    "recall": 0.8752,
+    "f1": 0.8867,
+    "roc_auc": 0.9860,
+    "optimal_threshold": 0.6984,
+    "threshold_mode": "f1"
+  }
+}
