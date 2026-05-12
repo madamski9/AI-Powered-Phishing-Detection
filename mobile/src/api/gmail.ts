@@ -1,7 +1,6 @@
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 
 const GMAIL_BASE = process.env.EXPO_PUBLIC_GMAIL_API_BASE
-const TOKENINFO_URL = process.env.EXPO_PUBLIC_GOOGLE_TOKENINFO_URL
 
 export class GmailScopeError extends Error {
     constructor() {
@@ -20,29 +19,17 @@ export interface GmailMessage {
 
 export async function getGmailAccessToken(): Promise<string | null> {
     try {
-        // After app restart GoogleSignin loses its in-memory session.
-        // signInSilently() restores it from the OS account manager before getTokens().
         await GoogleSignin.signInSilently()
 
         const stale = await GoogleSignin.getTokens()
         const staleToken = (stale as any).accessToken
-        console.log('[gmail] stale accessToken present:', !!staleToken)
         if (staleToken) {
             await GoogleSignin.clearCachedAccessToken(staleToken)
-            console.log('[gmail] cleared cached access token')
         }
         const fresh = await GoogleSignin.getTokens()
         const freshToken = (fresh as any).accessToken ?? null
-        console.log('[gmail] fresh accessToken present:', !!freshToken)
-        if (freshToken) {
-            fetch(`${TOKENINFO_URL}?access_token=${freshToken}`)
-                .then(r => r.json())
-                .then(info => console.log('[gmail] token scopes:', info.scope ?? info.error_description ?? info))
-                .catch(() => {})
-        }
         return freshToken
     } catch (e: any) {
-        console.error('[gmail] getGmailAccessToken error:', e?.message ?? e)
         return null
     }
 }
@@ -70,16 +57,13 @@ function formatGmailDate(raw: string): string {
 export async function fetchGmailMessages(accessToken: string, query?: string): Promise<GmailMessage[]> {
     const params: Record<string, string> = { maxResults: '20' }
     if (query?.trim()) params.q = query.trim()
-    console.log('[gmail] fetchGmailMessages query:', query ?? '(none)')
 
     const listResp = await fetch(
         `${GMAIL_BASE}/messages?${new URLSearchParams(params)}`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
     )
-    console.log('[gmail] list messages status:', listResp.status)
     if (!listResp.ok) {
         const text = await listResp.text()
-        console.error(`[gmail] list messages ${listResp.status} body:`, text.slice(0, 300))
         if (listResp.status === 403 && text.includes('insufficientPermissions')) {
             throw new GmailScopeError()
         }
@@ -88,7 +72,6 @@ export async function fetchGmailMessages(accessToken: string, query?: string): P
 
     const listData = await listResp.json()
     const ids: string[] = (listData.messages ?? []).map((m: { id: string }) => m.id)
-    console.log('[gmail] message ids count:', ids.length)
     if (ids.length === 0) return []
 
     const settled = await Promise.allSettled(
@@ -98,7 +81,6 @@ export async function fetchGmailMessages(accessToken: string, query?: string): P
                 { headers: { Authorization: `Bearer ${accessToken}` } },
             )
             if (!resp.ok) {
-                console.warn('[gmail] metadata fetch failed for', id, 'status:', resp.status)
                 throw new Error(`msg ${id} error ${resp.status}`)
             }
             const data = await resp.json()
@@ -115,13 +97,9 @@ export async function fetchGmailMessages(accessToken: string, query?: string): P
         }),
     )
 
-    const failed = settled.filter(r => r.status === 'rejected').length
-    if (failed > 0) console.warn('[gmail] failed to fetch metadata for', failed, 'message(s)')
-
     const messages = settled
         .filter((r): r is PromiseFulfilledResult<GmailMessage> => r.status === 'fulfilled')
         .map(r => r.value)
-    console.log('[gmail] fetched', messages.length, 'messages successfully')
     return messages
 }
 
@@ -153,15 +131,12 @@ function extractTextFromPayload(payload: Record<string, any>): string {
 }
 
 export async function fetchMessageBody(accessToken: string, messageId: string): Promise<string> {
-    console.log('[gmail] fetchMessageBody id:', messageId)
     const resp = await fetch(
         `${GMAIL_BASE}/messages/${messageId}?format=full`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
     )
-    console.log('[gmail] fetch body status:', resp.status)
     if (!resp.ok) throw new Error(`Failed to fetch message body (${resp.status})`)
     const data = await resp.json()
     const text = extractTextFromPayload(data.payload ?? {}) || (data.snippet as string | undefined) || ''
-    console.log('[gmail] body length:', text.length, 'chars')
     return text
 }

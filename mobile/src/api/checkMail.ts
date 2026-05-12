@@ -27,10 +27,6 @@ export async function checkMail(
         params.urls ?? '',
     )
 
-    console.log(
-        '[checkMail] POST', endpoint,
-        '| features computed on device, feature count:', Object.keys(features).length,
-    )
 
     const [response, networkError] = await tryCatch(
         fetch(endpoint, {
@@ -44,19 +40,15 @@ export async function checkMail(
     )
 
     if (networkError || !response) {
-        console.error('[checkMail] Network error:', networkError?.message)
         return { ok: false, error: networkError?.message ?? 'Network request failed' }
     }
 
-    console.log('[checkMail] Response status:', response.status)
 
     const [data, jsonError] = await tryCatch(response.json())
     if (jsonError || !response.ok) {
         const payload = typeof data === 'object' ? JSON.stringify(data) : String(data)
-        console.error('[checkMail] API error:', payload)
         return { ok: false, error: payload }
     }
 
-    console.log('[checkMail] Result — is_phishing:', data.is_phishing, 'confidence:', data.confidence, 'uncertain:', data.uncertain)
     return { ok: true, data }
 }

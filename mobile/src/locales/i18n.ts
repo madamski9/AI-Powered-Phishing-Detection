@@ -18,7 +18,6 @@ const LANGUAGE_DETECTOR = {
             const deviceLanguage = RNLocalize.getLocales()[0]?.languageCode || 'en'
             callback(deviceLanguage)
         } catch (error) {
-            console.error('Error detecting language:', error)
             callback('en')
         }
     },
@@ -27,7 +26,6 @@ const LANGUAGE_DETECTOR = {
         try {
             await AsyncStorage.setItem('user-language', lng)
         } catch (error) {
-            console.error('Error saving language:', error)
         }
     }
 }

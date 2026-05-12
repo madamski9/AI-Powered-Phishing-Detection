@@ -25,6 +25,5 @@ export async function loginWithEmail({ idToken }: LoginProps) {
 		const payload = typeof dataLogin === "object" ? JSON.stringify(dataLogin) : String(dataLogin);
 		return { ok: false, error: payload };
 	}
-    console.log("login with email firebase: ", dataLogin)
 	return { ok: true, data: dataLogin };
 }

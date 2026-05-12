@@ -73,7 +73,6 @@ const CheckUrlScreen = () => {
 
     const handleScan = async () => {
         if (!url.trim()) {
-            console.warn('[CheckUrlScreen] URL is empty')
             return
         }
         const validationError = validateUrl(url.trim())
@@ -82,11 +81,9 @@ const CheckUrlScreen = () => {
             return
         }
         if (!user?.idToken) {
-            console.warn('[CheckUrlScreen] No idToken - user not authenticated')
             return
         }
 
-        console.log('[CheckUrlScreen] Starting scan for:', url.trim())
         setIsScanning(true)
         setScanResult(null)
         setScanError(null)
@@ -94,13 +91,11 @@ const CheckUrlScreen = () => {
         const result = await checkUrl(url.trim(), user.idToken)
 
         if (!result.ok) {
-            console.error('[CheckUrlScreen] Scan failed:', result.error)
             setScanError(result.error)
             setIsScanning(false)
             return
         }
 
-        console.log('[CheckUrlScreen] Scan complete - is_phishing:', result.data.is_phishing, 'confidence:', result.data.confidence)
 
         const newScan: UrlScanResult = {
             id: Date.now().toString(),

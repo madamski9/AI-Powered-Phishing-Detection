@@ -28,12 +28,10 @@ const EmailButton = ({ email, password }: EmailProps) => {
 
   const handleEmailAuth = async () => {
     if (!email || !email.includes('@')) {
-      console.warn('Invalid email');
       return;
     }
 
     if (!password) {
-      console.warn('Missing password');
       return;
     }
     setIsSubmiting(true);
@@ -43,7 +41,6 @@ const EmailButton = ({ email, password }: EmailProps) => {
         navigation.replace("Main");
       }
     } catch (error) {
-      console.error("Email login error:", error);
     } finally {
       setIsSubmiting(false);
     }

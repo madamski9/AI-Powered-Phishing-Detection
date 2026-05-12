@@ -4,4 +4,4 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-firebase_key/
+firebase_phishing_key.json

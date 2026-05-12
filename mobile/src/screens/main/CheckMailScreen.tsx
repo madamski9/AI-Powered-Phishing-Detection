@@ -65,28 +65,23 @@ const CheckMailScreen = () => {
     const [scanStates, setScanStates] = useState<Record<string, ScanState>>({})
 
     const loadEmails = useCallback(async (query?: string) => {
-        console.log('[CheckMailScreen] loadEmails query:', query ?? '(none)')
         setIsLoading(true)
         setLoadError(null)
         setNeedsReauth(false)
         try {
             const token = await getGmailAccessToken()
             if (!token) {
-                console.warn('[CheckMailScreen] No Gmail access token')
                 setLoadError(t('emailCheck.tokenError'))
                 return
             }
             setAccessToken(token)
             const messages = await fetchGmailMessages(token, query)
-            console.log('[CheckMailScreen] Loaded', messages.length, 'emails')
             setEmails(messages)
             setScanStates({})
         } catch (e: any) {
             if (e instanceof GmailScopeError) {
-                console.warn('[CheckMailScreen] Gmail scope missing — needsReauth')
                 setNeedsReauth(true)
             } else {
-                console.error('[CheckMailScreen] loadEmails error:', e?.message ?? e)
                 setLoadError(e.message ?? t('emailCheck.fetchError'))
             }
         } finally {
@@ -98,23 +93,18 @@ const CheckMailScreen = () => {
         if (authLoading) return
         const firebaseUser = firebaseAuth.currentUser
         const google = firebaseUser?.providerData.some(p => p.providerId === 'google.com') ?? false
-        console.log('[CheckMailScreen] isGoogleUser:', google)
         setIsGoogleUser(google)
         if (google) loadEmails()
     }, [authLoading, loadEmails])
 
     const handleSearch = () => {
-        console.log('[CheckMailScreen] Search:', searchQuery.trim())
         loadEmails(searchQuery.trim() || undefined)
     }
 
     const handleRevokeAndReauth = async () => {
-        console.log('[CheckMailScreen] Revoking Google access to force fresh consent')
         try {
             await GoogleSignin.revokeAccess()
-            console.log('[CheckMailScreen] Access revoked')
         } catch (e: any) {
-            console.warn('[CheckMailScreen] revokeAccess error:', e?.message ?? e)
         }
         await logout()
         navigation.replace('Home')
@@ -122,10 +112,8 @@ const CheckMailScreen = () => {
 
     const handleScan = async (email: GmailMessage) => {
         if (!accessToken || !user?.idToken) {
-            console.warn('[CheckMailScreen] handleScan skipped — no accessToken or idToken')
             return
         }
-        console.log('[CheckMailScreen] Scanning email id:', email.id, 'subject:', email.subject)
         setScanStates(prev => ({ ...prev, [email.id]: { status: 'scanning' } }))
         try {
             const body = await fetchMessageBody(accessToken, email.id)
@@ -138,11 +126,9 @@ const CheckMailScreen = () => {
                 user.idToken,
             )
             if (!result.ok) {
-                console.error('[CheckMailScreen] Scan API error:', result.error)
                 setScanStates(prev => ({ ...prev, [email.id]: { status: 'error', message: result.error } }))
                 return
             }
-            console.log('[CheckMailScreen] Scan result — isSafe:', !result.data.is_phishing, 'confidence:', result.data.confidence)
             recordScan(result.data.is_phishing)
             setScanStates(prev => ({
                 ...prev,
@@ -154,7 +140,6 @@ const CheckMailScreen = () => {
                 },
             }))
         } catch (e: any) {
-            console.error('[CheckMailScreen] handleScan exception:', e?.message ?? e)
             setScanStates(prev => ({
                 ...prev,
                 [email.id]: { status: 'error', message: e.message ?? t('emailCheck.scanError') },

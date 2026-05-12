@@ -18,16 +18,13 @@ const AuthLoadingScreen = () => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          console.log("User logged in:", user.email, "Token:", token.substring(0, 20) + "...");
           hasNavigated.current = true;
           navigation.replace("Main");
         } catch (error) {
-          console.error("Error getting token:", error);
           hasNavigated.current = true;
           navigation.replace("Home");
         }
       } else {
-        console.log("No user logged in");
         hasNavigated.current = true;
         navigation.replace("Home");
       }

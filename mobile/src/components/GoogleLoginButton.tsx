@@ -24,7 +24,6 @@ const GoogleButton = () => {
         navigation.replace("Main");
       }
     } catch (error) {
-      console.error("Google login error:", error);
     } finally {
       setIsSubmiting(false);
     }
