@@ -67,7 +67,7 @@ evaluation plots, and training pipelines.
 ## Project Structure
 
 ```
-AI-Powered-Phishing-Detection-Seargin/
+AI-Powered-Phishing-Detection/
 ├── api/                  # FastAPI backend service
 ├── ml-service/           # XGBoost inference microservice + ML docs
 │   └── README.md         # ← ML model documentation
@@ -90,8 +90,8 @@ AI-Powered-Phishing-Detection-Seargin/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/madamski9/AI-Powered-Phishing-Detection-Seargin.git
-cd AI-Powered-Phishing-Detection-Seargin
+git clone https://github.com/madamski9/AI-Powered-Phishing-Detection.git
+cd AI-Powered-Phishing-Detection
 ```
 
 ### 2. Run the app
