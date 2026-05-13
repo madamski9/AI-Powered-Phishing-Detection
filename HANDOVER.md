@@ -1,18 +1,7 @@
 # Setup Guide — AI-Powered Phishing Detection
 
-This document lists every file and credential needed to run the full stack
-(Docker backend + React Native mobile app) from scratch.
-
----
-
-## Files you need to receive (via secure channel)
-
-| File | Where to place it | Description |
-|---|---|---|
-| `firebase_phishing_key.json` | `api/` | Firebase Admin SDK service account key |
-| `.env` | `api/` | API service environment variables |
-| `.env` | `mobile/` | Mobile app environment variables |
-| ML model files (see Step 0 below) | see below | Pre-trained XGBoost models |
+This document covers everything needed to run the full stack from scratch:
+Docker backend (API + ML service) and React Native mobile app.
 
 ---
 
@@ -33,29 +22,41 @@ Without these files the ML service will crash on startup.
 
 ---
 
-## Step 1 — Firebase Admin SDK key (backend)
+## Step 1 — Create a Firebase project
 
-1. Place the received `firebase_phishing_key.json` file inside:
-   ```
-   api/firebase_phishing_key.json
-   ```
+This project requires your own Firebase project for authentication.
 
-2. Open `api/.env` and make sure `FIREBASE_KEY_PATH` matches the filename:
-   ```env
-   FIREBASE_KEY_PATH=firebase_phishing_key.json
-   ```
+1. Go to [Firebase Console](https://console.firebase.google.com/) → **Add project**
+2. Enable **Authentication** → Sign-in method → turn on **Email/Password** and **Google**
 
 ---
 
-## Step 2 — API environment (`api/.env`)
+## Step 2 — Firebase Admin SDK key (`api/.env`)
 
-Create `api/.env` (or use the received file) based on `api/.env.example`:
+The API uses the Firebase Admin SDK to verify tokens. You need a service account key.
+
+1. In Firebase Console → **Project settings** (gear icon) → **Service accounts** tab
+2. Click **Generate new private key** → **Generate key**
+3. A `.json` file is downloaded — place it inside `api/`:
+   ```
+   api/firebase_key.json
+   ```
+4. Create `api/.env`:
+   ```bash
+   cp api/.env.example api/.env
+   ```
+5. Set `FIREBASE_KEY_PATH` to the filename of the JSON you just placed:
+   ```env
+   FIREBASE_KEY_PATH=firebase_key.json
+   ```
+
+Full `api/.env` reference:
 
 ```env
-# Path to the Firebase Admin SDK key (relative to the api/ directory)
-FIREBASE_KEY_PATH=firebase_phishing_key.json
+# Path to Firebase Admin SDK key (relative to api/ directory)
+FIREBASE_KEY_PATH=firebase_key.json
 
-# Firebase project number — Firebase Console → Project settings → Project number
+# Firebase project number — Firebase Console → Project settings → General → Project number
 FIREBASE_CLIENT_ID=<project-number>
 
 # ML service URL — leave as-is for Docker Compose
@@ -66,22 +67,40 @@ ML_SERVICE_URL=http://ml-service:8000
 
 ## Step 3 — Mobile environment (`mobile/.env`)
 
-Create `mobile/.env` (or use the received file) based on `mobile/.env.example`:
+The mobile app needs Firebase web app config keys and Google OAuth credentials.
+
+### 3a — Firebase web app keys
+
+1. In Firebase Console → **Project settings** → **General** tab
+2. Scroll to **Your apps** → click **Add app** → choose **Web** (`</>`)
+3. Register the app (name doesn't matter), copy the config object
+
+### 3b — Google OAuth credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services** → **Credentials**
+2. Create an **OAuth 2.0 Client ID** for **Web application** → copy Client ID and Client Secret
+3. Create another **OAuth 2.0 Client ID** for **iOS** → copy Client ID
+
+### 3c — Fill in `mobile/.env`
+
+```bash
+cp mobile/.env.example mobile/.env
+```
 
 ```env
-# Google OAuth — Google Cloud Console → APIs & Services → Credentials
+# Google OAuth — from Google Cloud Console
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=<web-client-id>
 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=<ios-client-id>
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_SECRET=<web-client-secret>
 
-# API URL — set to your machine's LAN IP for local dev, or server URL for production
-EXPO_PUBLIC_API_URL=http://<your-ip>:8080
+# API URL — use your machine's LAN IP for local dev (not localhost)
+EXPO_PUBLIC_API_URL=http://<your-lan-ip>:8080
 
-# Google APIs (these values are fixed, no changes needed)
+# Google APIs (fixed values, no changes needed)
 EXPO_PUBLIC_GMAIL_API_BASE=https://gmail.googleapis.com/gmail/v1/users/me
 EXPO_PUBLIC_GOOGLE_TOKENINFO_URL=https://www.googleapis.com/oauth2/v3/tokeninfo
 
-# Firebase — Firebase Console → Project settings → General → Your apps → Config
+# Firebase — from Firebase Console → Project settings → Your apps → Web app config
 EXPO_PUBLIC_FIREBASE_API_KEY=<api-key>
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=<project-id>.firebaseapp.com
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=<project-id>
@@ -91,22 +110,23 @@ EXPO_PUBLIC_FIREBASE_APP_ID=<app-id>
 EXPO_PUBLIC_MEASUREMENT_ID=<measurement-id>
 ```
 
-> **`EXPO_PUBLIC_API_URL`** — for local development this must be your machine's
-> **LAN IP address** (not `localhost`), because the mobile device/emulator runs
-> on a separate network stack. Run `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
-> to find your IP.
+> **`EXPO_PUBLIC_API_URL`** — for local development this must be your machine's LAN IP
+> (not `localhost`), because the mobile device/emulator runs on a separate network stack.
+> Run `ifconfig` (Mac/Linux) or `ipconfig` (Windows) to find it.
 
 ---
 
-## Step 4 — Start the backend (Docker)
+## Step 4 — Start the backend
 
 ```bash
 # From the project root
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:8080` and
-the ML service at `http://localhost:8000`.
+The API will be available at `http://localhost:8080` and the ML service at `http://localhost:8000`.
+
+> The ML service loads models on startup — it can take up to 90 seconds to become healthy.
+> The API waits for it automatically.
 
 Health check:
 ```bash
@@ -119,25 +139,21 @@ curl http://localhost:8000/health
 ## Step 5 — Start the mobile app
 
 ```bash
-cd mobile
-npm install
-
-# iOS
-npx react-native run-ios
-
-# Android
-npx react-native run-android
+./run.sh ios      # iOS
+./run.sh android  # Android
+./run.sh web      # Web
 ```
 
-Or use the quick-start script from the project root:
+Or manually:
 ```bash
-./run.sh ios
-./run.sh android
+cd mobile && npm install
+npx react-native run-ios      # iOS
+npx react-native run-android  # Android
 ```
 
 ---
 
-## Where each credential comes from
+## Credentials reference
 
 | Credential | Where to get it |
 |---|---|
@@ -154,8 +170,14 @@ Or use the quick-start script from the project root:
 
 ```
 project/
-├── api/                      ← place the JSON key and .env file here
-├── ml-service/               ← no secrets needed, loaded via api/.env
+├── api/
+│   ├── firebase_key.json     ← place your service account key here
+│   ├── .env                  ← api secrets (FIREBASE_KEY_PATH, etc.)
+│   └── .env.example          ← template
+├── ml-service/
+│   └── src/
+│       ├── email_model/models/   ← place email_phishing_detector.joblib here
+│       └── url_model/models/     ← place phishing_detector.joblib here
 ├── mobile/
 │   ├── .env                  ← mobile secrets
 │   └── .env.example          ← template
