@@ -120,10 +120,10 @@ cd mobile
 npm install
 
 # iOS
-npx react-native run-ios
+npx expo run:ios
 
 # Android
-npx react-native run-android
+npx expo run:android
 ```
 
 ### 3. Configure environment variables

@@ -10,7 +10,8 @@
 ```
 
 This single command will:
-- Start API service (Docker)
+- Start ML service (Docker)
+- Start API service (Docker, waits for ML service to be healthy)
 - Install mobile dependencies (if needed)
 - Wait for API to be ready
 - Launch your chosen mobile platform
@@ -29,6 +30,16 @@ seargin_cybersecurity/
 │   ├── .env.example              # Environment template
 │   └── main.py
 │
+├── ml-service/                   # ML inference service (FastAPI, port 8000)
+│   ├── Dockerfile                # Python 3.11 multi-stage build
+│   ├── requirements.txt
+│   ├── app/
+│   │   ├── main.py
+│   │   └── predictor.py
+│   └── src/
+│       ├── email_model/          # Trained email phishing model
+│       └── url_model/            # Trained URL phishing model
+│
 ├── mobile/                       # React Native / Expo frontend
 │   ├── Dockerfile                # Node.js Alpine build
 │   ├── .dockerignore
@@ -39,7 +50,7 @@ seargin_cybersecurity/
 │   ├── setup-mobile.sh          # Initialize mobile dependencies
 │   └── run-mobile.sh            # Run mobile on iOS/Android/Web
 │
-├── docker-compose.yml            # Docker Compose (API only)
+├── docker-compose.yml            # Docker Compose (API + ML service)
 ├── run.sh                        # ONE COMMAND START ALL
 └── DOCKER_README.md             # This file
 ```
@@ -64,11 +75,12 @@ seargin_cybersecurity/
 ```
 
 This will:
-1. Start API in Docker (background)
-2. Wait for API to be healthy
-3. Install mobile dependencies
-4. Launch your selected platform
-5. Show useful commands
+1. Start ML service in Docker (background)
+2. Start API in Docker (background, depends on ML service health)
+3. Wait for API to be healthy
+4. Install mobile dependencies
+5. Launch your selected platform
+6. Show useful commands
 
 ## Mobile App
 
@@ -101,14 +113,21 @@ This will:
 
 ## Docker Compose
 
-### Start API Service
+### Start All Services (API + ML)
 ```bash
 docker compose up -d
 ```
 
-### View API Logs
+### View Logs
 ```bash
+# All services
+docker compose logs -f
+
+# API only
 docker compose logs -f api
+
+# ML service only
+docker compose logs -f ml-service
 ```
 
 ### Stop Services
@@ -119,6 +138,10 @@ docker compose down
 ### Rebuild Images
 ```bash
 docker compose build
+
+# Rebuild a specific service
+docker compose build api
+docker compose build ml-service
 ```
 
 ## Environment Configuration
@@ -135,7 +158,11 @@ Edit as needed:
 ENVIRONMENT=production
 LOG_LEVEL=info
 CORS_ORIGINS=http://localhost:8081,http://localhost:19000,http://localhost:3000
+ML_SERVICE_URL=http://ml-service:8000
 ```
+
+### ML Service
+The ML service runs on port `8000` and is accessed internally by the API via the Docker network (`detector-network`). No external `.env` is required — configuration is passed through `docker-compose.yml`.
 
 ## Troubleshooting
 
@@ -144,13 +171,27 @@ CORS_ORIGINS=http://localhost:8081,http://localhost:19000,http://localhost:3000
 # Check Docker status
 docker ps
 
-# View container logs
+# View all container logs
 docker compose logs -f
 
 # Rebuild images
 docker compose down -v
 docker compose build
 docker compose up -d
+```
+
+### ML Service Issues
+The ML service has a long startup time (up to 90s) because it loads the phishing models into memory. The API will wait for it to be healthy before starting.
+
+```bash
+# Check ML service health
+curl http://localhost:8000/health
+
+# View ML service logs
+docker compose logs -f ml-service
+
+# Restart ML service only
+docker compose restart ml-service
 ```
 
 ### Mobile Issues
@@ -168,6 +209,7 @@ expo start --clear
 ```
 
 ### Port Conflicts
+- ML service: 8000
 - API: 8080
 - Expo: 8081, 19000, 19001, 19002
 
@@ -175,7 +217,8 @@ expo start --clear
 
 | Service | Port | Type | Status |
 |---------|------|------|--------|
-| API | 8080 | FastAPI | Docker |
+| ML Service | 8000 | FastAPI | Docker |
+| API | 8080 | FastAPI | Docker (depends on ML service) |
 | Expo Dev | 8081+ | Node.js | Local |
 | Mobile (iOS) | - | Native | Simulator/Device |
 | Mobile (Android) | - | Native | Emulator/Device |
@@ -192,5 +235,7 @@ expo start --clear
 
 - run.sh is the recommended way to start everything (production-ready)
 - Mobile app runs separately from Docker (not in compose)
-- API container includes health checks
+- Both API and ML service containers include health checks
+- ML service starts first — API depends on its health check passing (up to 90s startup)
+- API and ML service communicate over the internal `detector-network` Docker bridge
 - Scripts are production-ready with proper error handling
